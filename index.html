@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P2P Class Chat</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+
+<!-- Join screen -->
+<div id="joinView">
+  <div class="topbar">
+    <span class="brand">P2P Class Chat</span>
+  </div>
+
+  <main class="join">
+    <h1>Join a room</h1>
+    <p class="lead">Anyone who enters the same room name can chat with you. Messages go straight between browsers and aren't saved anywhere.</p>
+
+    <form id="joinForm" novalidate>
+      <label for="nameInput">Your name</label>
+      <input id="nameInput" maxlength="30" autocomplete="nickname" placeholder="e.g. Yogesh">
+
+      <label for="roomInput">Room name</label>
+      <input id="roomInput" maxlength="60" autocomplete="off" spellcheck="false" placeholder="e.g. frontend">
+
+      <label for="passInput">Password <span class="optional">(optional)</span></label>
+      <input id="passInput" type="password" autocomplete="off">
+      <p class="hint">If you set one, everyone in the room has to type the same password.</p>
+
+      <button type="submit" class="primary" id="joinBtn">Join room</button>
+      <p class="error" id="joinError" role="alert"></p>
+    </form>
+
+    <p class="footnote">Trying it on your own? Open this page in two tabs and join the same room.</p>
+  </main>
+</div>
+
+<!-- Chat screen -->
+<div id="chatView" hidden>
+  <aside class="sidebar">
+    <div class="brand-bar">
+      <span class="brand">P2P Class Chat</span>
+    </div>
+    <h2>Online <span id="peopleCount">1</span></h2>
+    <ul id="peopleList"></ul>
+  </aside>
+
+  <section class="main">
+    <header>
+      <div class="room-info">
+        <strong id="roomTitle"></strong>
+        <span id="status"></span>
+      </div>
+      <button type="button" id="copyLinkBtn">Invite link</button>
+      <button type="button" id="leaveBtn">Leave</button>
+    </header>
+
+    <div id="messages" role="log" aria-live="polite"></div>
+
+    <form id="sendForm" class="composer">
+      <input id="msgInput" maxlength="2000" autocomplete="off" placeholder="Write a message" aria-label="Message">
+      <button type="submit" class="primary">Send</button>
+    </form>
+  </section>
+</div>
+
+</body>
+</html>
