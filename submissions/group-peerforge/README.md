@@ -42,14 +42,6 @@ PeerForge is a high-performance, decentralized peer-to-peer technical mock inter
 - **Live Web Application:** [https://peerforge-one.vercel.app](https://peerforge-one.vercel.app)
 - **Signaling & Backend Server:** [https://peerforge-backend.onrender.com](https://peerforge-backend.onrender.com)
 
-### Application Screenshots
-
-#### Live Peer-to-Peer Interview Room (Synchronized Monaco Editor + Dual Video Streams)
-![Live P2P Interview Room](docs/screenshots/live-room.jpg)
-
-#### User Authentication & Onboarding
-![Authentication & Onboarding](docs/screenshots/auth-page.jpg)
-
 ---
 
 ### Step-by-Step Usage Guide
