@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Group Study Room</title>
+<style>
+:root{--bg:#eef1f8;--card:#fff;--tx:#1b2233;--mut:#6a7388;--ac:#4f6df5;--ac2:#8b5cf6;--bd:#e0e5ef;--ok:#16a34a;--bad:#dc2626;--warn:#f59e0b;--sh:0 6px 24px rgba(30,40,80,.08)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0f121a;--card:#181d28;--tx:#e8ebf2;--mut:#98a1b5;--ac:#7b93ff;--ac2:#a78bfa;--bd:#283042;--sh:0 6px 24px rgba(0,0,0,.35)}}
+:root[data-theme=dark]{--bg:#0f121a;--card:#181d28;--tx:#e8ebf2;--mut:#98a1b5;--ac:#7b93ff;--ac2:#a78bfa;--bd:#283042;--sh:0 6px 24px rgba(0,0,0,.35)}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;font:15px/1.45 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--tx);height:100vh;height:100dvh;display:flex;flex-direction:column;
+ background:radial-gradient(900px 420px at 8% -8%,color-mix(in srgb,var(--ac) 16%,transparent),transparent),radial-gradient(700px 380px at 100% 0,color-mix(in srgb,var(--ac2) 12%,transparent),transparent),var(--bg)}
+header{display:flex;gap:10px;align-items:center;padding:10px 16px;background:color-mix(in srgb,var(--card) 82%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:8px}.logo{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,var(--ac),var(--ac2));font-size:17px}
+header h1{font-size:16px;margin:0;letter-spacing:-.2px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--mut);padding:4px 10px;border:1px solid var(--bd);border-radius:99px;background:var(--card)}
+.pill i{width:8px;height:8px;border-radius:50%;background:var(--warn)}.pill[data-s=ok] i{background:var(--ok);box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 25%,transparent)}.pill[data-s=bad] i{background:var(--bad)}
+#lockbadge{font-size:12px;padding:4px 10px;border-radius:99px;background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok);font-weight:600}
+#peers{margin-left:auto;display:flex;align-items:center}#peers small{margin-left:8px;color:var(--mut);font-size:12px}
+.av{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:12px;font-weight:700;border:2px solid var(--card);margin-left:-8px}.av:first-child{margin-left:0}
+button,input,textarea{font:inherit;color:inherit}
+button{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;border:0;border-radius:10px;padding:9px 16px;cursor:pointer;font-weight:600;transition:transform .08s,filter .15s}
+button:hover{filter:brightness(1.08)}button:active{transform:scale(.97)}button:disabled{opacity:.6;cursor:wait}
+button.sec,button.ghost{background:transparent;color:var(--tx);border:1px solid var(--bd);font-weight:500}
+button.ghost{padding:6px 12px;font-size:13px}button.sec.on{background:var(--ac);color:#fff;border-color:transparent}
+button.linkbtn{background:none;color:var(--ac);padding:2px 0;font-size:13px;text-align:left;font-weight:500}
+input,textarea{background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;outline:none;transition:border-color .15s,box-shadow .15s}
+input:focus,textarea:focus{border-color:var(--ac);box-shadow:0 0 0 3px color-mix(in srgb,var(--ac) 22%,transparent)}
+#join{margin:auto;background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:30px;width:min(400px,92vw);display:flex;flex-direction:column;gap:12px;box-shadow:var(--sh)}
+#join h2{margin:0;font-size:22px;background:linear-gradient(135deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
+#app{display:none;flex:1;min-height:0;grid-template-columns:1fr 1.2fr 1fr;gap:14px;padding:14px}
+.panel{background:var(--card);border:1px solid var(--bd);border-radius:16px;display:flex;flex-direction:column;min-height:0;min-width:0;box-shadow:var(--sh);overflow:hidden}
+.panel h3{margin:0;padding:12px 16px;font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--mut);border-bottom:1px solid var(--bd)}
+#msgs,#flist{flex:1;overflow:auto;padding:12px 16px}
+.m{display:flex;flex-direction:column;align-items:flex-start;margin-bottom:10px}.m.mine{align-items:flex-end}
+.mh{font-size:12px;margin:0 4px 3px}.mh small{color:var(--mut);margin-left:6px}
+.bub{padding:8px 12px;border-radius:14px 14px 14px 4px;background:var(--bg);border-left:3px solid hsl(var(--hue,220) 60% 55%);max-width:88%;white-space:pre-wrap;overflow-wrap:anywhere}
+.m.mine .bub{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;border:0;border-radius:14px 14px 4px 14px}
+.m.sys{align-items:center;color:var(--mut);font-style:italic;font-size:12px;text-align:center}
+#chatform{display:flex;gap:8px;padding:10px;border-top:1px solid var(--bd)}#chatform input{flex:1;min-width:0}
+#notes{flex:1;border:0;border-radius:0;box-shadow:none;resize:none;padding:16px;background:transparent;font-family:ui-monospace,SFMono-Regular,monospace;font-size:14px;line-height:1.6}
+#drop{margin:12px;padding:20px;border:2px dashed var(--bd);border-radius:14px;text-align:center;color:var(--mut);cursor:pointer;transition:.15s}
+#drop:hover,#drop.over{border-color:var(--ac);color:var(--ac);background:color-mix(in srgb,var(--ac) 7%,transparent)}
+.f{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd);font-size:14px}
+.f .ic{font-size:22px}.f .meta{flex:1;min-width:0}.f .n{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.f small{color:var(--mut)}.f .bar{height:4px;background:var(--bd);border-radius:4px;overflow:hidden;margin-top:5px}.f .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));transition:width .2s}
+.f a,.f button{font-size:13px;padding:5px 12px;border-radius:8px;text-decoration:none;font-weight:600}.f a{background:var(--ok);color:#fff}
+.empty{text-align:center;color:var(--mut);font-size:13px;padding:14px}
+#tabs{display:none}
+#toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);background:var(--tx);color:var(--bg);padding:9px 16px;border-radius:99px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:9}#toast.show{opacity:1;transform:translate(-50%,0)}
+.badge{background:var(--bad);color:#fff;border-radius:99px;font-size:11px;padding:1px 6px;margin-left:6px}
+@media (max-width:820px){
+ #app{grid-template-columns:1fr;padding:10px}
+ body.in #tabs{display:flex;gap:6px;padding:10px 12px 0}#tabs button{flex:1}
+ .panel{display:none}.panel.show{display:flex}#peers{margin-left:0}
+}
+</style>
+</style>
+</head>
+<body>
+<header>
+ <div class="brand"><span class="logo">📚</span><h1>Group Study Room</h1></div>
+ <span class="pill" id="status" data-s="wait"><i></i><span id="stxt">not connected</span></span>
+ <span id="lockbadge" hidden>🔒 Password-protected</span>
+ <div id="peers"></div>
+ <button class="ghost" id="copylink" hidden>🔗 Invite</button>
+ <button class="ghost" id="theme" title="Toggle light/dark">🌓</button>
+</header>
+
+<form id="join">
+ <h2>Join a room</h2>
+ <input id="name" placeholder="Your name" maxlength="24" required>
+ <input id="room" placeholder="Room code (e.g. algebra-42)" maxlength="32" required>
+ <button type="button" class="linkbtn" id="pwtoggle">🔒 Add a password (optional)</button>
+ <input id="pw" type="password" placeholder="Room password" maxlength="64" autocomplete="off" hidden>
+ <button id="joinbtn">Join</button>
+ <small style="color:var(--mut)">Share the room code (or the invite link) with your group. If you set a password, tell them it separately. Everything is sent directly between browsers.</small>
+</form>
+
+<div id="tabs"><button class="sec on" data-p="p-chat">Chat<span class="badge" id="unread" hidden></span></button><button class="sec" data-p="p-notes">Notes</button><button class="sec" data-p="p-files">Files</button></div>
+<div id="app">
+ <section class="panel show" id="p-chat"><h3>💬 Chat</h3><div id="msgs"></div>
+  <form id="chatform"><input id="msg" placeholder="Message…" autocomplete="off"><button>Send</button></form></section>
+ <section class="panel" id="p-notes"><h3>📝 Shared notes <span id="nmeta" style="font-weight:400;color:var(--mut)"></span></h3>
+  <textarea id="notes" placeholder="Everyone sees what you type here…"></textarea></section>
+ <section class="panel" id="p-files"><h3>📎 Files</h3>
+  <div id="drop">Drop files here or click to choose<input id="fin" type="file" multiple hidden></div>
+  <div id="flist"></div></section>
+</div>
+
+<div id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+const MAX = 10;                      // max people per room (slots 0..9)
+const CHUNK = 16 * 1024;             // file chunk size
+const MAX_FILE = 100 * 1024 * 1024;
+const BIG = 25 * 1024 * 1024;       // above this, stream to disk instead of holding in memory (when supported)
+const ICE = { iceServers: [
+  { urls: 'stun:stun.l.google.com:19302' },
+  { urls: 'stun:global.stun.twilio.com:3478' },
+  { urls: ['turn:openrelay.metered.ca:80', 'turn:openrelay.metered.ca:443', 'turns:openrelay.metered.ca:443?transport=tcp'],
+    username: 'openrelayproject', credential: 'openrelayproject' }
+]};
+const $ = id => document.getElementById(id);
+const uid = () => Math.random().toString(36).slice(2, 10);
+const hue = n => Math.abs([...(n || '?')].reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 7)) % 360;
+let toastT; function toast(t) { const el = $('toast'); el.textContent = t; el.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), 2600); }
+let unread = 0;
+/* Per-tab client id: lets us tell "my" messages from someone else who typed the same name. */
+const cid = (() => { try { let v = sessionStorage.getItem('sr-cid'); if (!v) { v = uid() + uid(); sessionStorage.setItem('sr-cid', v); } return v; } catch (e) { return uid() + uid(); } })();
+const isMine = m => m.cid ? m.cid === cid : m.name === myName;
+
+let me = -1, myName = '', room = '', peer = null;
+const conns = {};                    // slot -> {conn, name, initiator}
+let lamport = 0;
+const chat = [];                     // {id,name,text,ts}
+const seen = new Set();
+let notes = { text: '', clock: 0, by: -1 };
+const files = {};                    // id -> {id,name,size,type,owner,ownerName}
+const blobs = {};                    // id -> Blob (files we hold)
+const incoming = {};                 // id -> {chunks,n,got}
+let tag = '';                         // '' for open rooms, '-p<hash>' for password rooms
+const peerId = n => `studyroom-${room}${tag}-${n}`;
+/* Optional password: derived (PBKDF2-SHA256, salted with the room code) into part of the room namespace.
+   Same code + same password = same room; a wrong password simply lands in a different, empty room. */
+async function roomTag(pw) {
+  if (!pw) return '';
+  if (!(window.crypto && crypto.subtle)) throw new Error('Passwords need a secure (https) page');
+  const enc = new TextEncoder();
+  const k = await crypto.subtle.importKey('raw', enc.encode(pw), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: enc.encode('studyroom:' + room), iterations: 100000, hash: 'SHA-256' }, k, 96);
+  return '-p' + [...new Uint8Array(bits)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+const slotOf = id => parseInt(id.split('-').pop(), 10);
+
+/* Problem 2: data lost on refresh -> keep chat + notes in this browser's localStorage, per room */
+function saveState() { try { localStorage.setItem('sr-' + room + tag, JSON.stringify({ chat: chat.slice(-500), notes })); } catch (e) {} }
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem('sr-' + room + tag) || 'null'); if (!s) return;
+    s.chat.forEach(m => { m = cleanChat(m); m && addChat(m); });
+    const sn = cleanNotes(s.notes); if (sn) { notes = sn; lamport = Math.max(lamport, notes.clock); $('notes').value = notes.text; }
+  } catch (e) {}
+}
+
+/* ---------- join ---------- */
+const hash = new URLSearchParams(location.hash.slice(1));
+if (hash.get('room')) $('room').value = hash.get('room');
+$('name').value = localStorage.getItem('sr-name') || '';
+function showPw(on, req) {
+  $('pw').hidden = !on; $('pw').required = !!req;
+  $('pwtoggle').textContent = on ? '✕ Remove password' : '🔒 Add a password (optional)';
+  if (on) $('pw').focus(); else $('pw').value = '';
+}
+$('pwtoggle').onclick = () => showPw($('pw').hidden);
+if (hash.get('lock')) showPw(true, true);          // invite link to a protected room: password required
+$('join').onsubmit = async e => {
+  e.preventDefault();
+  myName = $('name').value.trim(); room = $('room').value.trim().toLowerCase().replace(/[^a-z0-9_]+/g, '_');
+  const btn = $('joinbtn'); btn.disabled = true; btn.textContent = 'Joining…';
+  try { tag = await roomTag($('pw').hidden ? '' : $('pw').value); }
+  catch (err) { btn.disabled = false; btn.textContent = 'Join'; return toast(err.message); }
+  localStorage.setItem('sr-name', myName);
+  location.hash = 'room=' + encodeURIComponent(room) + (tag ? '&lock=1' : '');
+  $('join').style.display = 'none'; $('app').style.display = 'grid'; document.body.classList.add('in');
+  $('lockbadge').hidden = !tag; $('copylink').hidden = false;
+  renderPeers(); loadState(); claim(0);
+};
+
+/* Serverless "room discovery": a peer claims the lowest free slot id on the public
+   PeerJS broker (signalling only), then dials every other slot to form a full mesh. */
+function claim(n) {
+  if (n >= MAX) return setStatus('Room is full (max ' + MAX + ')', true);
+  setStatus('connecting…');
+  const p = new Peer(peerId(n), { config: ICE, debug: 0 });
+  p.on('open', () => {
+    peer = p; me = n; setStatus('connected as slot ' + n);
+    sys('You joined room “' + room + '”.');
+    for (let i = 0; i < MAX; i++) if (i !== me) dial(i);
+    /* Problem 5: peers cannot connect -> tell the user what to try instead of failing silently */
+    setTimeout(() => { if (!Object.values(conns).some(x => x.conn.open))
+      sys((tag ? 'No one else has connected yet. If friends are already here, check that the room code AND password match exactly, or try a phone hotspot.' : 'No one else has connected yet. If friends are already in this room, your Wi-Fi may be blocking direct connections: try a phone hotspot.')); }, 20000);
+  });
+  p.on('connection', c => register(c, slotOf(c.peer), false));
+  p.on('error', err => {
+    if (err.type === 'unavailable-id') { p.destroy(); claim(n + 1); }
+    else if (err.type === 'peer-unavailable') { /* empty slot, normal */ }
+    else if (['network', 'server-error', 'socket-error', 'socket-closed'].includes(err.type)) setStatus('signalling problem: ' + err.type, true);
+  });
+  p.on('disconnected', () => { setStatus('reconnecting…'); try { p.reconnect(); } catch (e) {} });
+}
+function dial(i) { if (conns[i]) return; register(peer.connect(peerId(i), { reliable: true }), i, true); }
+
+/* ---------- connection management ---------- */
+function register(c, slot, weDialled) {
+  const initiator = weDialled ? me : slot;
+  c.on('open', () => {
+    const old = conns[slot];
+    if (old && old.conn.open) {                       // duplicate link: keep the one dialled by the lower slot
+      if (old.initiator <= initiator) { c.close(); return; }
+      old.conn.close();
+    }
+    conns[slot] = { conn: c, name: '…', initiator };
+    send(c, { t: 'hello', name: myName, chat, notes, files: Object.values(files) });
+    renderPeers();
+  });
+  c.on('data', d => onData(slot, c, d));
+  c.on('close', () => {
+    if (conns[slot] && conns[slot].conn === c) {
+      sys((conns[slot].name || 'Someone') + ' left.'); delete conns[slot]; renderPeers(); renderFiles();
+    }
+  });
+  c.on('error', () => {});
+}
+const send = (c, m) => { try { c.send(m); } catch (e) {} };
+const bcast = m => Object.values(conns).forEach(x => x.conn.open && send(x.conn, m));
+
+/* ---------- message handling ---------- */
+/* Problem 9 (malicious input): never trust a peer. Every incoming message is type-checked,
+   trimmed and size-limited before it touches the page or our state. Text is only ever shown with textContent. */
+const isStr = (v, max) => typeof v === 'string' && v.length <= max;
+const isNum = v => typeof v === 'number' && isFinite(v) && Math.abs(v) < 1e12;
+function cleanChat(m) {
+  if (!m || !isStr(m.id, 40) || !m.id || !isStr(m.text, 2000) || !isStr(m.name, 24) || !isNum(m.ts)) return null;
+  return { t: 'chat', id: m.id, name: m.name, text: m.text, ts: m.ts, lc: isNum(m.lc) && m.lc > 0 ? m.lc : 0, cid: isStr(m.cid, 40) ? m.cid : '' };
+}
+function cleanNotes(n) { return n && isStr(n.text, 200000) && isNum(n.clock) && Number.isInteger(n.by) ? { text: n.text, clock: n.clock, by: n.by } : null; }
+function cleanFile(m) {
+  if (!m || !isStr(m.id, 40) || !m.id || !isStr(m.name, 255) || !isNum(m.size) || m.size < 0 || m.size > MAX_FILE
+      || !Number.isInteger(m.owner) || m.owner < 0 || m.owner >= MAX) return null;
+  return { id: m.id, name: m.name, size: m.size, type: isStr(m.type, 100) ? m.type : '', owner: m.owner, ownerName: isStr(m.ownerName, 24) ? m.ownerName : '?' };
+}
+function onData(slot, c, d) {
+  if (!d || typeof d !== 'object') return;
+  switch (d.t) {
+    case 'hello': {
+      const name = isStr(d.name, 24) && d.name.trim() ? d.name.trim() : 'Guest';
+      conns[slot] && (conns[slot].name = name); renderPeers(); sys(name + ' joined.');
+      (Array.isArray(d.chat) ? d.chat.slice(-500) : []).forEach(m => { m = cleanChat(m); m && addChat(m); });
+      const n = cleanNotes(d.notes); n && mergeNotes(n);
+      (Array.isArray(d.files) ? d.files.slice(0, 100) : []).forEach(m => { m = cleanFile(m); m && addFile(m); });
+      break; }
+    case 'chat': { const m = cleanChat(d); m && addChat(m); break; }
+    case 'notes': { const n = cleanNotes(d); n && mergeNotes(n); break; }
+    case 'file': { const m = cleanFile(d); m && addFile(m); break; }
+    case 'freq': if (isStr(d.id, 40)) serveFile(c, d.id); break;
+    case 'fchunk': recvChunk(d, slot); break;
+    case 'fmiss': { const f = isStr(d.id, 40) && files[d.id]; if (f) { f.loading = false; f.err = 'owner has no copy'; renderFiles(); } break; }
+  }
+}
+
+/* ---------- chat ---------- */
+function addChat(m) {
+  if (seen.has(m.id)) return; seen.add(m.id);                       // Problem 4: duplicates dropped by unique id
+  if (m.lc) lamport = Math.max(lamport, m.lc);
+  chat.push(m);                                                    // Problem 3: order by Lamport clock, not device clock
+  chat.sort((a, b) => (a.lc || 0) - (b.lc || 0) || a.ts - b.ts || (a.id < b.id ? -1 : 1));
+  if (chat.length > 2000) chat.splice(0, chat.length - 2000);      // memory cap against floods
+  if (!isMine(m) && Date.now() - m.ts < 5000 && matchMedia('(max-width:820px)').matches && !$('p-chat').classList.contains('show')) {
+    unread++; $('unread').textContent = unread; $('unread').hidden = false;
+  }
+  scheduleRender();
+}
+/* Join/leave notices live in their own list and are merged into the chat by time, so a new message never wipes them. */
+const events = [];
+let rcTimer = 0;
+function scheduleRender() { if (!rcTimer) rcTimer = setTimeout(renderChat, 30); }
+function sys(t) { events.push({ ts: Date.now(), text: t }); if (events.length > 200) events.shift(); scheduleRender(); }
+function bubble(x) {
+  const mine = isMine(x);
+  const div = document.createElement('div'); div.className = 'm' + (mine ? ' mine' : '');
+  const head = document.createElement('div'); head.className = 'mh';
+  const b = document.createElement('b'); b.textContent = mine ? 'You' : x.name;
+  const t = document.createElement('small'); t.textContent = new Date(x.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  head.append(b, t);
+  const bub = document.createElement('div'); bub.className = 'bub'; bub.textContent = x.text;
+  if (!mine) bub.style.setProperty('--hue', hue(x.name));
+  div.append(head, bub); return div;
+}
+function renderChat() {
+  rcTimer = 0;
+  const box = $('msgs'), stick = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+  box.innerHTML = '';
+  let k = 0;
+  const flush = ts => { while (k < events.length && events[k].ts <= ts) { const d = document.createElement('div'); d.className = 'm sys'; d.textContent = events[k++].text; box.append(d); } };
+  chat.forEach(x => { flush(x.ts); box.append(bubble(x)); });
+  flush(Infinity);
+  if (stick) box.scrollTop = box.scrollHeight;
+  saveState();
+}
+$('chatform').onsubmit = e => {
+  e.preventDefault(); const text = $('msg').value.trim(); if (!text) return;
+  const m = { t: 'chat', id: uid() + uid(), name: myName, text, ts: Date.now(), lc: ++lamport, cid };
+  addChat(m); bcast(m); $('msg').value = '';
+};
+
+/* ---------- shared notes: last-writer-wins with Lamport clock ---------- */
+let noteTimer = null;
+$('notes').addEventListener('input', () => {
+  clearTimeout(noteTimer);
+  noteTimer = setTimeout(() => {
+    lamport++; notes = { text: $('notes').value, clock: lamport, by: me };
+    bcast({ t: 'notes', ...notes }); saveState(); $('nmeta').textContent = '· you edited just now';
+  }, 120);
+});
+function mergeNotes(n) {
+  if (!n) return;
+  lamport = Math.max(lamport, n.clock);
+  const newer = n.clock > notes.clock || (n.clock === notes.clock && n.by > notes.by);
+  if (!newer) return;
+  const ta = $('notes'), old = ta.value, nw = n.text;
+  notes = { text: nw, clock: n.clock, by: n.by }; saveState();
+  if (old === nw) return;
+  let pos = ta.selectionStart, p = 0;                 // keep the caret stable when remote text arrives
+  while (p < old.length && p < nw.length && old[p] === nw[p]) p++;
+  let s = 0;
+  while (s < old.length - p && s < nw.length - p && old[old.length - 1 - s] === nw[nw.length - 1 - s]) s++;
+  if (pos > p) pos = pos >= old.length - s ? pos + nw.length - old.length : p;
+  ta.value = nw; ta.setSelectionRange(pos, pos);
+  const who = (conns[n.by] && conns[n.by].name) || 'a peer';
+  $('nmeta').textContent = '· last edit by ' + who;
+}
+
+/* ---------- files ---------- */
+const drop = $('drop');
+drop.onclick = () => $('fin').click();
+$('fin').onchange = e => { [...e.target.files].forEach(shareFile); e.target.value = ''; };
+['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e => [...e.dataTransfer.files].forEach(shareFile));
+
+function shareFile(f) {
+  if (f.size > MAX_FILE) return alert(f.name + ' is larger than ' + MAX_FILE / 1048576 + ' MB');
+  const meta = { t: 'file', id: uid() + uid(), name: f.name, size: f.size, type: f.type, owner: me, ownerName: myName };
+  blobs[meta.id] = f; files[meta.id] = { ...meta, url: URL.createObjectURL(f) };
+  bcast(meta); renderFiles();
+}
+function addFile(m) { if (!files[m.id]) { files[m.id] = { id: m.id, name: m.name, size: m.size, type: m.type, owner: m.owner, ownerName: m.ownerName }; renderFiles(); } }
+async function fetchFile(id) {
+  const f = files[id], o = conns[f.owner];
+  if (!o || !o.conn.open) { f.err = 'owner is offline'; return renderFiles(); }
+  let sink = null;
+  if (f.size > BIG) {
+    if (window.showSaveFilePicker) {            // stream straight to disk: memory use stays tiny
+      try { sink = await (await window.showSaveFilePicker({ suggestedName: f.name })).createWritable(); } catch (e) { return; }
+    } else if (!confirm(f.name + ' is large (' + fmt(f.size) + ') and this browser must hold it in memory, which can crash the tab. Continue?')) return;
+  }
+  f.err = ''; f.loading = true; f.got = 0; f.saved = false;
+  incoming[id] = { parts: [], got: 0, sink, q: Promise.resolve() };
+  send(o.conn, { t: 'freq', id }); renderFiles();
+}
+async function serveFile(c, id) {
+  const b = blobs[id]; if (!b) return send(c, { t: 'fmiss', id });
+  const n = Math.max(1, Math.ceil(b.size / CHUNK));
+  for (let i = 0; i < n; i++) {
+    const data = await b.slice(i * CHUNK, (i + 1) * CHUNK).arrayBuffer();
+    while (c.dataChannel && c.dataChannel.bufferedAmount > 1 << 20) await new Promise(r => setTimeout(r, 40)); // backpressure
+    if (!c.open) return;
+    send(c, { t: 'fchunk', id, i, n, data });
+  }
+}
+function recvChunk(d, slot) {
+  const inc = incoming[d.id], f = files[d.id]; if (!inc || !f || slot !== f.owner) return;   // only the owner may send chunks
+  if (!(d.data instanceof ArrayBuffer || ArrayBuffer.isView(d.data)) || d.data.byteLength > CHUNK * 2
+      || d.n !== Math.max(1, Math.ceil(f.size / CHUNK)) || !Number.isInteger(d.i) || d.i < 0 || d.i >= d.n) return;
+  inc.got++; f.got = inc.got; f.n = d.n;
+  if (inc.sink) inc.q = inc.q.then(() => inc.sink.write(d.data));   // chunks arrive in order on a reliable channel
+  else inc.parts[d.i] = d.data;
+  if (inc.got === d.n) {
+    delete incoming[d.id];
+    if (inc.sink) inc.q.then(() => inc.sink.close()).then(() => { f.loading = false; f.saved = true; renderFiles(); })
+                       .catch(() => { f.loading = false; f.err = 'could not write file'; renderFiles(); });
+    else { const b = new Blob(inc.parts, { type: f.type }); blobs[d.id] = b; f.url = URL.createObjectURL(b); f.loading = false; }
+  }
+  if (inc.got % 8 === 0 || inc.got === d.n) renderFiles();
+}
+const fmt = n => n > 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB';
+const icon = f => /^image\//.test(f.type) ? '🖼️' : /pdf/.test(f.type) ? '📕' : /^video/.test(f.type) ? '🎞️' : /^audio/.test(f.type) ? '🎵' : /zip|rar|7z|tar/.test(f.type + f.name) ? '🗜️' : '📄';
+function renderFiles() {
+  const box = $('flist'); box.innerHTML = '';
+  const list = Object.values(files);
+  if (!list.length) { const e = document.createElement('div'); e.className = 'empty'; e.textContent = 'No files shared yet.'; box.append(e); return; }
+  list.forEach(f => {
+    const row = document.createElement('div'); row.className = 'f';
+    const ic = document.createElement('span'); ic.className = 'ic'; ic.textContent = icon(f);
+    const meta = document.createElement('div'); meta.className = 'meta';
+    const n = document.createElement('span'); n.className = 'n'; n.title = f.name; n.textContent = f.name;
+    const s = document.createElement('small'); s.textContent = fmt(f.size) + ' · ' + f.ownerName + (f.err ? ' · ' + f.err : '');
+    if (f.err) s.style.color = 'var(--bad)';
+    meta.append(n, s);
+    if (f.loading) { const bar = document.createElement('div'); bar.className = 'bar'; const i = document.createElement('i'); i.style.width = (f.n ? Math.round(100 * f.got / f.n) : 0) + '%'; bar.append(i); meta.append(bar); }
+    row.append(ic, meta);
+    if (f.url) { const a = document.createElement('a'); a.href = f.url; a.download = f.name; a.textContent = 'Save'; row.append(a); }
+    else if (f.saved) { const p = document.createElement('small'); p.textContent = 'Saved ✓'; row.append(p); }
+    else if (f.loading) { const p = document.createElement('small'); p.textContent = f.n ? Math.round(100 * f.got / f.n) + '%' : '…'; row.append(p); }
+    else { const b = document.createElement('button'); b.textContent = f.err ? 'Retry' : 'Get'; b.onclick = () => fetchFile(f.id); row.append(b); }
+    box.append(row);
+  });
+}
+renderFiles();
+
+/* ---------- ui helpers ---------- */
+function setStatus(t, bad) { $('stxt').textContent = t; $('status').dataset.s = bad ? 'bad' : /^connected/.test(t) ? 'ok' : 'wait'; }
+function avatar(name, self) {
+  const a = document.createElement('span'); a.className = 'av'; a.textContent = (name || '?').trim().slice(0, 1).toUpperCase();
+  a.style.background = `hsl(${hue(name)} 60% 48%)`; a.title = self ? name + ' (you)' : name; return a;
+}
+function renderPeers() {
+  const box = $('peers'); box.innerHTML = ''; box.append(avatar(myName, true));
+  const open = Object.values(conns).filter(x => x.conn.open); open.forEach(x => box.append(avatar(x.name)));
+  const c = document.createElement('small'); c.textContent = (open.length + 1) + ' online'; box.append(c);
+}
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('show', p.id === b.dataset.p));
+  document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('on', x === b));
+  if (b.dataset.p === 'p-chat') { unread = 0; $('unread').hidden = true; }
+});
+const root = document.documentElement;
+if (localStorage.getItem('sr-theme')) root.dataset.theme = localStorage.getItem('sr-theme');
+$('theme').onclick = () => {
+  const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme:dark)').matches;
+  root.dataset.theme = dark ? 'light' : 'dark'; localStorage.setItem('sr-theme', root.dataset.theme);
+};
+$('copylink').onclick = () => navigator.clipboard.writeText(location.href)
+  .then(() => toast(tag ? 'Invite link copied. Share the password separately.' : 'Invite link copied'))
+  .catch(() => toast('Could not copy. Copy the address bar instead.'));
+</script>
+</body>
+</html>
