@@ -39,7 +39,6 @@ PeerForge is a high-performance, decentralized peer-to-peer technical mock inter
 5. **Symmetric Blind Evaluation:** After session completion, both engineers evaluate each other across 4 competency rubrics (Problem Solving, Code Quality, Communication, System Design). Neither can view the other's feedback until both have submitted.
 
 ### Live Deployment Links
-- **GitHub Pages Deployment:** [https://atishaycodes.github.io/P2P_App/submissions/group-peerforge/](https://atishaycodes.github.io/P2P_App/submissions/group-peerforge/)
 - **Production Web Application (Vercel):** [https://group-peerforge.vercel.app](https://group-peerforge.vercel.app)
 - **Signaling & Backend Server (Render):** [https://peerforge-backend.onrender.com](https://peerforge-backend.onrender.com)
 
