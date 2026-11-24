@@ -7,7 +7,7 @@ PeerForge is a high-performance, decentralized peer-to-peer technical mock inter
 ## 1. Project Information & Team Members
 
 - **Project Name:** PeerForge
-- **Live Deployment (Frontend):** [https://peerforge-one.vercel.app](https://peerforge-one.vercel.app)
+- **Live Deployment (Frontend):** [https://group-peerforge.vercel.app](https://group-peerforge.vercel.app)
 - **Production Backend API:** [https://peerforge-backend.onrender.com](https://peerforge-backend.onrender.com)
 - **Target Pull Request:** `Yogeshrathia07/P2P_App` (Branch: `main`)
 
@@ -39,7 +39,7 @@ PeerForge is a high-performance, decentralized peer-to-peer technical mock inter
 5. **Symmetric Blind Evaluation:** After session completion, both engineers evaluate each other across 4 competency rubrics (Problem Solving, Code Quality, Communication, System Design). Neither can view the other's feedback until both have submitted.
 
 ### Live Deployment Links
-- **Live Web Application:** [https://peerforge-one.vercel.app](https://peerforge-one.vercel.app)
+- **Live Web Application:** [https://group-peerforge.vercel.app](https://group-peerforge.vercel.app)
 - **Signaling & Backend Server:** [https://peerforge-backend.onrender.com](https://peerforge-backend.onrender.com)
 
 ### Application Screenshots
@@ -61,7 +61,7 @@ PeerForge is a high-performance, decentralized peer-to-peer technical mock inter
 ### Step-by-Step Usage Guide
 
 1. **Access the Application:**
-   - Open [https://peerforge-one.vercel.app](https://peerforge-one.vercel.app) in your web browser.
+   - Open [https://group-peerforge.vercel.app](https://group-peerforge.vercel.app) in your web browser.
    - Click **"Sign Up"** or **"Sign In"** to access your dashboard.
 
 2. **Create or Join a Room:**
@@ -156,7 +156,7 @@ PeerForge addresses 5 core challenges of decentralized and peer-to-peer architec
 
 ### Problem 3: Cross-Origin Production API Routing & Third-Party Cookie Drops on Refresh
 - **The problem:** In production, submitting forms returned `SyntaxError: Unexpected token 'T', "The page c"... is not valid JSON` (404 HTML) or HTTP 405, and refreshing the browser immediately logged the user out and redirected to `/login`.
-- **Why it happened:** The frontend was hosted on Vercel (`peerforge-one.vercel.app`) while the backend ran on Render (`peerforge-backend.onrender.com`). Calling relative `/api/*` endpoints hit Vercel's static host instead of Render, returning Vercel's default 404 HTML page. Furthermore, cross-site third-party cookies are blocked by default on modern browsers between different domains (Vercel and Render), causing cookie-only `checkAuth()` to fail on page reload.
+- **Why it happened:** The frontend was hosted on Vercel (`group-peerforge.vercel.app`) while the backend ran on Render (`peerforge-backend.onrender.com`). Calling relative `/api/*` endpoints hit Vercel's static host instead of Render, returning Vercel's default 404 HTML page. Furthermore, cross-site third-party cookies are blocked by default on modern browsers between different domains (Vercel and Render), causing cookie-only `checkAuth()` to fail on page reload.
 - **What you tried:** Using Vite development proxies (which do not apply to production static builds) and relying solely on `credentials: "include"` session cookies.
 - **Your final solution:** 
   1. Added a `vercel.json` rewrites configuration routing all `/api/:path*` requests directly to `https://peerforge-backend.onrender.com/api/:path*`.
