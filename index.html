@@ -1,72 +1,296 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>P2P Class Chat</title>
-  <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="style.css">
-  <script src="app.js" defer></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PeerDesk — Decentralised P2P Group Study Room</title>
+  <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-
-<!-- Join screen -->
-<div id="joinView">
-  <div class="topbar">
-    <span class="brand">P2P Class Chat</span>
-  </div>
-
-  <main class="join">
-    <h1>Join a room</h1>
-    <p class="lead">Anyone who enters the same room name can chat with you. Messages go straight between browsers and aren't saved anywhere.</p>
-
-    <form id="joinForm" novalidate>
-      <label for="nameInput">Your name</label>
-      <input id="nameInput" maxlength="30" autocomplete="nickname" placeholder="e.g. Yogesh">
-
-      <label for="roomInput">Room name</label>
-      <input id="roomInput" maxlength="60" autocomplete="off" spellcheck="false" placeholder="e.g. frontend">
-
-      <label for="passInput">Password <span class="optional">(optional)</span></label>
-      <input id="passInput" type="password" autocomplete="off">
-      <p class="hint">If you set one, everyone in the room has to type the same password.</p>
-
-      <button type="submit" class="primary" id="joinBtn">Join room</button>
-      <p class="error" id="joinError" role="alert"></p>
-    </form>
-
-    <p class="footnote">Trying it on your own? Open this page in two tabs and join the same room.</p>
-  </main>
-</div>
-
-<!-- Chat screen -->
-<div id="chatView" hidden>
-  <aside class="sidebar">
-    <div class="brand-bar">
-      <span class="brand">P2P Class Chat</span>
-    </div>
-    <h2>Online <span id="peopleCount">1</span></h2>
-    <ul id="peopleList"></ul>
-  </aside>
-
-  <section class="main">
-    <header>
-      <div class="room-info">
-        <strong id="roomTitle"></strong>
-        <span id="status"></span>
+  <!-- LOBBY VIEW -->
+  <main id="lobbyView" class="lobby-shell">
+    <canvas id="meshBgCanvas" class="mesh-bg-canvas" aria-hidden="true"></canvas>
+    <div class="ambient-orb orb-a" aria-hidden="true"></div>
+    <div class="ambient-orb orb-b" aria-hidden="true"></div>
+    <section class="lobby-card">
+      <div class="brand-row">
+        <div class="brand-logo" aria-hidden="true">PD</div>
+        <div class="brand-title-wrap">
+          <div class="title-with-prop">
+            <h1>PeerDesk</h1>
+            <span class="live-pill" title="Direct peer-to-peer connection ready">
+              <span class="live-dot" aria-hidden="true"></span>
+              Live P2P
+            </span>
+          </div>
+          <p class="subtitle">Group study room — notes, whiteboard, files &amp; chat</p>
+        </div>
+        <button id="lobbyThemeBtn" class="btn btn-ghost btn-sm" type="button" title="Toggle theme">Theme</button>
       </div>
-      <button type="button" id="copyLinkBtn">Invite link</button>
-      <button type="button" id="leaveBtn">Leave</button>
+
+      <div id="inviteNotice" class="invite-notice hidden"></div>
+
+      <div class="lobby-tabs" role="tablist" aria-label="Room action">
+        <button id="modeJoinTab" class="lobby-tab active" type="button" role="tab" aria-selected="true">Join a Room</button>
+        <button id="modeCreateTab" class="lobby-tab" type="button" role="tab" aria-selected="false">Create New Room</button>
+      </div>
+
+      <form id="joinForm" class="join-form">
+        <div class="field">
+          <label for="displayNameInput">Your Name</label>
+          <input id="displayNameInput" type="text" maxlength="28" placeholder="Enter your name" required />
+        </div>
+
+        <div class="field">
+          <label for="roomCodeInput">Room Code</label>
+          <div class="input-with-btn">
+            <input id="roomCodeInput" type="text" maxlength="120" placeholder="Enter code (e.g. STUDY-387) or paste invite link" required />
+            <button id="randomRoomBtn" class="btn btn-ghost btn-sm hidden" type="button">New Code</button>
+          </div>
+          <p id="roomCodeHint" class="hint">Ask your classmate for their room code or invite link.</p>
+        </div>
+
+        <div class="field">
+          <label for="passcodeInput">Room Password <span class="muted">(optional)</span></label>
+          <input id="passcodeInput" type="password" maxlength="64" placeholder="Leave blank for an open room" />
+        </div>
+
+        <button id="joinRoomBtn" class="btn btn-primary btn-lg" type="submit">Join Study Room</button>
+
+        <details class="advanced-box">
+          <summary>Connection &amp; Identity Settings (Optional)</summary>
+
+          <div class="adv-inner">
+            <div class="identity-banner">
+              <div>
+                <span class="label-sm">Your Verified Device ID</span>
+                <div class="fingerprint-row">
+                  <code id="lobbyFingerprint">Generating...</code>
+                  <span class="badge badge-ok">ECDSA P-256</span>
+                </div>
+              </div>
+              <button id="rotateIdentityBtn" class="btn btn-ghost btn-sm" type="button" title="Generate new cryptographic identity">Reset ID</button>
+            </div>
+
+            <div class="field">
+              <label for="signalingModeSelect">Connection Mode</label>
+              <select id="signalingModeSelect">
+                <option value="nostr">Automatic (Recommended)</option>
+                <option value="mqtt">Backup Relay (MQTT)</option>
+                <option value="manual">Offline / Manual Code Exchange</option>
+              </select>
+            </div>
+
+            <p class="hint">Custom TURN server (only needed if strict campus Wi-Fi blocks direct connections):</p>
+            <div class="field">
+              <label for="turnUrlInput">TURN Server URL</label>
+              <input id="turnUrlInput" type="text" placeholder="turn:openrelay.metered.ca:80" />
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="turnUserInput">TURN Username</label>
+                <input id="turnUserInput" type="text" placeholder="Optional" />
+              </div>
+              <div class="field">
+                <label for="turnPassInput">TURN Credential</label>
+                <input id="turnPassInput" type="password" placeholder="Optional" />
+              </div>
+            </div>
+          </div>
+        </details>
+      </form>
+    </section>
+  </main>
+
+  <!-- STUDIO WORKSPACE VIEW -->
+  <div id="studioView" class="studio-shell hidden">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="brand-logo sm" aria-hidden="true">PD</div>
+        <div class="room-meta">
+          <div class="room-title-row">
+            <strong id="roomCodeDisplay">ROOM</strong>
+            <span id="e2eeBadge" class="badge badge-muted">Open Room</span>
+            <span id="modeBadge" class="badge badge-info">NOSTR</span>
+          </div>
+          <div class="submeta-row">
+            <span id="connectionStatusText">Initializing...</span>
+            <span>·</span>
+            <span id="lamportBadge" title="Current Lamport Logical Clock">L: 0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="topbar-center">
+        <div class="pomodoro-bar" title="Synced Study Timer across all connected peers">
+          <span id="timerPhaseLabel" class="timer-phase">FOCUS</span>
+          <strong id="timerClock">25:00</strong>
+          <button id="timerToggleBtn" class="btn btn-ghost btn-xs" type="button">Start</button>
+          <button id="timerResetBtn" class="btn btn-ghost btn-xs" type="button">Reset</button>
+          <button id="timerModeBtn" class="btn btn-ghost btn-xs" type="button">Break</button>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <span id="peerCountBadge" class="badge badge-ok">0 Peers</span>
+        <button id="inviteBtn" class="btn btn-secondary btn-sm" type="button">Invite Classmates</button>
+        <button id="diagnosticsBtn" class="btn btn-ghost btn-sm" type="button">Connection Info</button>
+        <button id="studioThemeBtn" class="btn btn-ghost btn-sm" type="button">Theme</button>
+        <button id="leaveRoomBtn" class="btn btn-danger btn-sm" type="button">Leave</button>
+      </div>
     </header>
 
-    <div id="messages" role="log" aria-live="polite"></div>
+    <div class="workspace-grid">
+      <!-- LEFT SIDEBAR: PEERS & MANUAL PAIRING & AUDIT LOG -->
+      <aside class="panel sidebar-panel">
+        <div class="panel-header">
+          <h2>Peers &amp; Trust</h2>
+          <code id="selfFingerprintBadge" class="fp-chip">----</code>
+        </div>
 
-    <form id="sendForm" class="composer">
-      <input id="msgInput" maxlength="2000" autocomplete="off" placeholder="Write a message" aria-label="Message">
-      <button type="submit" class="primary">Send</button>
-    </form>
-  </section>
-</div>
+        <ul id="peerList" class="peer-list"></ul>
 
+        <section id="manualPairingBox" class="manual-box hidden">
+          <h3>Manual WebRTC Handshake</h3>
+          <p class="hint">Exchange tokens directly (copy/paste or WhatsApp) with zero signaling servers.</p>
+          <div class="btn-row">
+            <button id="createOfferBtn" class="btn btn-secondary btn-xs" type="button">1. Create Offer</button>
+            <button id="acceptOfferBtn" class="btn btn-secondary btn-xs" type="button">2. Paste Offer → Answer</button>
+          </div>
+          <label class="label-sm" for="manualOutputBox">Generated Token (Share this)</label>
+          <textarea id="manualOutputBox" rows="3" readonly placeholder="Offer or Answer token appears here..."></textarea>
+          <button id="copyManualTokenBtn" class="btn btn-ghost btn-xs" type="button">Copy Token</button>
+
+          <label class="label-sm" for="manualInputBox">Paste Remote Token Here</label>
+          <textarea id="manualInputBox" rows="3" placeholder="Paste remote Offer or Answer token..."></textarea>
+          <div class="btn-row">
+            <button id="applyAnswerBtn" class="btn btn-primary btn-xs" type="button">3. Apply Answer</button>
+          </div>
+        </section>
+
+        <div class="panel-header sub-header">
+          <h3>Sync &amp; Security Log</h3>
+          <button id="clearLogBtn" class="btn btn-ghost btn-xs" type="button">Clear</button>
+        </div>
+        <ul id="auditLogList" class="audit-log"></ul>
+      </aside>
+
+      <!-- CENTER STAGE: NOTES / WHITEBOARD / FILE VAULT -->
+      <section class="panel center-panel">
+        <div class="tab-bar" role="tablist">
+          <button class="tab-btn active" data-tab="notes" role="tab" type="button">Shared Notes</button>
+          <button class="tab-btn" data-tab="board" role="tab" type="button">Whiteboard</button>
+          <button class="tab-btn" data-tab="files" role="tab" type="button">File Vault <span id="fileCountBadge" class="tab-count">0</span></button>
+        </div>
+
+        <!-- TAB 1: SHARED NOTES (BLOCK CRDT) -->
+        <div id="tab-notes" class="tab-pane active">
+          <div class="toolbar">
+            <button id="addNoteBtn" class="btn btn-primary btn-sm" type="button">+ New Study Block</button>
+            <button id="exportNotesBtn" class="btn btn-ghost btn-sm" type="button">Export Markdown</button>
+          </div>
+          <div id="notesContainer" class="notes-grid"></div>
+        </div>
+
+        <!-- TAB 2: LIVE WHITEBOARD -->
+        <div id="tab-board" class="tab-pane">
+          <div class="toolbar board-toolbar">
+            <div class="tool-group">
+              <button class="tool-btn active" data-tool="pen" type="button">Pen</button>
+              <button class="tool-btn" data-tool="eraser" type="button">Eraser</button>
+            </div>
+            <div class="color-group" aria-label="Stroke colors">
+              <button class="swatch active" data-color="#38bdf8" style="background:#38bdf8" type="button" title="Sky"></button>
+              <button class="swatch" data-color="#f472b6" style="background:#f472b6" type="button" title="Pink"></button>
+              <button class="swatch" data-color="#4ade80" style="background:#4ade80" type="button" title="Green"></button>
+              <button class="swatch" data-color="#facc15" style="background:#facc15" type="button" title="Amber"></button>
+              <button class="swatch" data-color="#f8fafc" style="background:#f8fafc" type="button" title="White"></button>
+            </div>
+            <label class="width-picker">
+              <span>Size</span>
+              <input id="strokeWidthInput" type="range" min="1" max="16" value="3" />
+            </label>
+            <div class="tool-group right">
+              <button id="clearBoardBtn" class="btn btn-danger btn-xs" type="button">Clear All</button>
+              <button id="exportBoardBtn" class="btn btn-ghost btn-xs" type="button">Save PNG</button>
+            </div>
+          </div>
+          <div class="canvas-wrap">
+            <canvas id="whiteboardCanvas"></canvas>
+            <div id="remoteCursorsLayer" class="cursors-layer"></div>
+          </div>
+        </div>
+
+        <!-- TAB 3: CHUNKED FILE VAULT -->
+        <div id="tab-files" class="tab-pane">
+          <div id="fileDropZone" class="drop-zone">
+            <p><strong>Drop study PDFs, slides, or images here</strong> (up to 50 MB)</p>
+            <p class="hint">Transferred peer-to-peer in 24 KB chunks with SHA-256 verification &amp; IndexedDB caching.</p>
+            <input id="fileInput" type="file" multiple class="hidden" />
+            <button id="browseFileBtn" class="btn btn-secondary btn-sm" type="button">Choose File(s)</button>
+          </div>
+          <div id="filesList" class="files-list"></div>
+        </div>
+      </section>
+
+      <!-- RIGHT PANEL: VERIFIED P2P CHAT -->
+      <aside class="panel chat-panel">
+        <div class="panel-header">
+          <h2>Study Chat</h2>
+          <span class="hint">Lamport Ordered</span>
+        </div>
+        <div id="chatMessages" class="chat-messages"></div>
+        <form id="chatForm" class="chat-form">
+          <input id="chatInput" type="text" maxlength="2000" placeholder="Message peers (ECDSA signed)..." autocomplete="off" />
+          <button class="btn btn-primary btn-sm" type="submit">Send</button>
+        </form>
+      </aside>
+    </div>
+  </div>
+
+  <!-- INVITE / QR MODAL -->
+  <dialog id="inviteDialog" class="modal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>Invite Classmates</h3>
+        <button id="closeInviteBtn" class="btn btn-ghost btn-xs" type="button">Close</button>
+      </div>
+      <p class="hint">Share the Room Code or Invite Link. If you set a password, share that separately.</p>
+      <div class="field" style="margin-bottom: 10px;">
+        <label for="inviteCodeInput">Room Code</label>
+        <div class="input-with-btn">
+          <input id="inviteCodeInput" type="text" readonly />
+          <button id="copyInviteCodeBtn" class="btn btn-secondary btn-sm" type="button">Copy Code</button>
+        </div>
+      </div>
+      <div id="inviteQrBox" class="qr-box"></div>
+      <div class="field">
+        <label for="inviteLinkInput">Direct Invite Link</label>
+        <div class="input-with-btn">
+          <input id="inviteLinkInput" type="text" readonly />
+          <button id="copyInviteBtn" class="btn btn-primary btn-sm" type="button">Copy Link</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- DIAGNOSTICS MODAL -->
+  <dialog id="diagnosticsDialog" class="modal">
+    <div class="modal-card wide">
+      <div class="modal-head">
+        <h3>WebRTC &amp; P2P Connection Diagnostics</h3>
+        <button id="closeDiagBtn" class="btn btn-ghost btn-xs" type="button">Close</button>
+      </div>
+      <p class="hint">Inspect live NAT traversal candidate types (<code>host</code> = LAN, <code>srflx</code> = STUN, <code>relay</code> = TURN) and trigger ICE restarts if Wi-Fi drops.</p>
+      <div class="btn-row">
+        <button id="refreshDiagBtn" class="btn btn-secondary btn-sm" type="button">Refresh Stats</button>
+        <button id="restartIceBtn" class="btn btn-ghost btn-sm" type="button">Restart ICE</button>
+        <button id="forceSyncBtn" class="btn btn-ghost btn-sm" type="button">Re-sync History</button>
+      </div>
+      <div id="diagTableWrap" class="diag-table-wrap"></div>
+    </div>
+  </dialog>
+
+  <script type="module" src="./app.js"></script>
 </body>
 </html>
