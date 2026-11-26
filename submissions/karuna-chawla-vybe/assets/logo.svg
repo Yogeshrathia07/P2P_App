@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="VYBE logo">
+  <!-- Orange tile -->
+  <rect width="48" height="48" rx="14" fill="#F47B35"/>
+  <!-- The "link" between two peers -->
+  <path d="M14 34 C14 22 34 26 34 14" fill="none" stroke="#FFF8EF" stroke-width="3" stroke-linecap="round"/>
+  <!-- Peer A and Peer B -->
+  <circle cx="14" cy="34" r="5" fill="#FFF8EF"/>
+  <circle cx="34" cy="14" r="5" fill="#FFF8EF"/>
+  <!-- Data travelling directly between them -->
+  <circle cx="24" cy="24" r="3.4" fill="#43291F"/>
+</svg>

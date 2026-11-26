@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VYBE — Peer-to-Peer Study Room</title>
+  <meta name="description" content="VYBE is a decentralised study room. Two students connect browser-to-browser with WebRTC and chat without any server storing or forwarding their messages.">
+  <meta name="theme-color" content="#FFF8EF">
+  <!-- Public address of this app. Invite links and QR codes made from localhost / a file point here,
+       so a friend on another network can open them. Keep the trailing slash. -->
+  <meta name="vybe-public-url" content="https://karunachawla000.github.io/VYBE/VYBE/">
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Sans:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- ============================ HEADER ============================ -->
+  <header class="site-header">
+    <div class="container nav">
+      <a href="#/" class="brand" aria-label="VYBE home">
+        <img src="assets/logo.svg" class="brand-mark" alt="" width="34" height="34">
+        <span class="brand-word">VYBE</span>
+      </a>
+      <nav class="nav-links" aria-label="Main">
+        <a href="#/" data-nav="landing">Home</a>
+        <a href="#/dashboard" data-nav="dashboard">Dashboard</a>
+        <a href="#/about" data-nav="about">About</a>
+      </nav>
+      <a href="#/dashboard" class="btn btn-primary btn-sm nav-cta">Start Studying</a>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- ============================ A. LANDING ============================ -->
+    <section id="view-landing" class="view" data-view="landing">
+      <div class="container hero">
+        <div class="hero-text">
+          <p class="eyebrow">Peer-to-peer study room</p>
+          <h1>Your Space.<br>Your People.<br><span class="accent">Your VYBE.</span></h1>
+          <p class="lead">VYBE connects two students directly, browser to browser. Share a QR or link, and your chat travels straight between your devices. No account. No message server.</p>
+          <div class="hero-actions">
+            <a href="#/dashboard" class="btn btn-primary btn-lg">Start Studying</a>
+            <a href="#how" class="btn btn-ghost btn-lg" id="linkHow">See how it works</a>
+          </div>
+          <p class="fineprint">Works on most home and mobile networks. Some strict campus or office Wi-Fi blocks direct connections.</p>
+        </div>
+
+        <div class="hero-art" aria-hidden="true">
+          <svg viewBox="0 0 520 380" role="img">
+            <rect x="20" y="40" width="190" height="300" rx="26" class="art-device"/>
+            <rect x="310" y="40" width="190" height="300" rx="26" class="art-device"/>
+            <rect x="40" y="90" width="120" height="30" rx="12" class="art-bubble-in"/>
+            <rect x="70" y="135" width="120" height="30" rx="12" class="art-bubble-out"/>
+            <rect x="40" y="180" width="90" height="30" rx="12" class="art-bubble-in"/>
+            <rect x="330" y="90" width="120" height="30" rx="12" class="art-bubble-out"/>
+            <rect x="360" y="135" width="120" height="30" rx="12" class="art-bubble-in"/>
+            <rect x="380" y="180" width="90" height="30" rx="12" class="art-bubble-out"/>
+            <path id="artPath" d="M210 190 C 250 120, 270 260, 310 190" class="art-link"/>
+            <circle r="7" class="art-dot"/>
+            <text x="115" y="312" text-anchor="middle" class="art-label">You</text>
+            <text x="405" y="312" text-anchor="middle" class="art-label">Your friend</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="container section" id="how">
+        <h2 class="section-title">How it works</h2>
+        <p class="section-sub">Four steps. No server in the middle.</p>
+        <ol class="steps-grid">
+          <li><span class="step-num">1</span><h3>Create a room</h3><p>Pick a room name. VYBE makes an <strong>invite</strong>: a QR code and a link.</p></li>
+          <li><span class="step-num">2</span><h3>Friend opens it</h3><p>They scan the QR or tap the link. Their browser prepares a <strong>reply</strong> by itself.</p></li>
+          <li><span class="step-num">3</span><h3>Send the reply back</h3><p>Scan or paste their reply on your screen. It connects the moment you do.</p></li>
+          <li><span class="step-num">4</span><h3>Study together</h3><p>A direct WebRTC channel opens and your chat flows between your two browsers.</p></li>
+        </ol>
+      </div>
+
+      <div class="container section" id="features">
+        <h2 class="section-title">What you get</h2>
+        <ul class="feature-list">
+          <li><h3>Real peer-to-peer</h3><p>Messages go through an RTCDataChannel straight to your peer.</p></li>
+          <li><h3>Saved on your device</h3><p>Your chat survives a refresh, stored only in your own browser.</p></li>
+          <li><h3>No duplicates, right order</h3><p>Unique IDs and sequence numbers keep every chat tidy.</p></li>
+          <li><h3>Safe input</h3><p>Every payload from a peer is checked, and shown as plain text only.</p></li>
+          <li><h3>History sync</h3><p>When you reconnect, you and your peer swap the messages you each hold.</p></li>
+          <li><h3>No sign-up</h3><p>No account, no database, no message server. It is a static website.</p></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================ B. DASHBOARD ============================ -->
+    <section id="view-dashboard" class="view" data-view="dashboard" hidden>
+      <div class="container narrow">
+        <div class="dash-head">
+          <div>
+            <p class="eyebrow">Dashboard</p>
+            <h1 class="h1-sm">Welcome, <span id="welcomeName" class="accent">student</span></h1>
+          </div>
+          <span class="pill" data-status-pill data-tone="neutral"><span class="pill-dot"></span><span class="pill-text">Not connected</span></span>
+        </div>
+
+        <div id="storageWarning" class="notice notice-warn" hidden>
+          Your browser is blocking local storage (private mode?). Chat history will not survive a refresh.
+        </div>
+
+        <div class="dash-actions">
+          <button class="action-tile" id="btnDashCreate" type="button">
+            <span class="action-title">Create Study Room</span>
+            <span class="action-text">Start a room and get an invite link and QR for your friend.</span>
+          </button>
+          <button class="action-tile" id="btnDashJoin" type="button">
+            <span class="action-title">Join Study Room</span>
+            <span class="action-text">Open a friend's invite link or QR to join their room.</span>
+          </button>
+        </div>
+
+        <div id="dashLive" class="notice notice-good" hidden>
+          <span>You are connected in <strong id="dashLiveRoom">a room</strong>.</span>
+          <button class="btn btn-primary btn-sm" id="btnDashGoRoom" type="button">Go to room</button>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Recent chats on this device</h2>
+          </div>
+          <ul id="recentRooms" class="recent-list"></ul>
+          <p id="recentEmpty" class="empty-text">No saved chats yet. Create or join a room and your messages will be remembered here, on this device only.</p>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <h2>Your display name</h2>
+            <form id="nameForm" class="inline-form">
+              <label class="sr-only" for="nameInput">Display name</label>
+              <input id="nameInput" type="text" maxlength="24" autocomplete="nickname" placeholder="Your name">
+              <button class="btn btn-ghost btn-sm" type="submit">Save</button>
+            </form>
+            <p class="hint">Shown to your peer. Anyone can type any name, so VYBE does not prove identity.</p>
+          </div>
+          <div class="panel">
+            <h2>How sharing works</h2>
+            <p class="small">Your browser and your friend's browser open a direct WebRTC channel. Messages go through that channel only. They are saved in each person's own browser storage, never on a server.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ D. CONNECTION SCREEN ============================ -->
+    <section id="view-connect" class="view" data-view="connect" hidden>
+      <div class="container narrow">
+        <button class="link-back" id="btnBackFromConnect" type="button">&larr; Back</button>
+        <div class="dash-head">
+          <div>
+            <p class="eyebrow">Connection</p>
+            <h1 class="h1-sm">Connect two devices</h1>
+          </div>
+          <span class="pill" data-status-pill data-tone="neutral"><span class="pill-dot"></span><span class="pill-text">Not connected</span></span>
+        </div>
+
+        <div class="tabs" role="tablist" aria-label="Connection role">
+          <button role="tab" id="tabCreate" aria-selected="true" aria-controls="panelCreate" type="button">Create connection</button>
+          <button role="tab" id="tabJoin" aria-selected="false" aria-controls="panelJoin" type="button">Join connection</button>
+        </div>
+
+        <p class="status-detail" data-status-detail aria-live="polite"></p>
+
+        <!-- CREATE -->
+        <div id="panelCreate" class="panel connect-panel" role="tabpanel" aria-labelledby="tabCreate">
+          <div class="cstep">
+            <h2><span class="step-num sm">1</span> Name your room</h2>
+            <form id="createForm" class="inline-form">
+              <label class="sr-only" for="roomNameInput">Room name</label>
+              <input id="roomNameInput" type="text" maxlength="40" placeholder="e.g. DSA revision" autocomplete="off">
+              <button class="btn btn-primary" id="btnGenerateOffer" type="submit">Create invite</button>
+            </form>
+            <p class="hint">Your browser needs a few seconds to find its network addresses.</p>
+            <p class="form-error" id="createError" role="alert" hidden></p>
+          </div>
+
+          <div class="cstep" id="offerBox" hidden>
+            <h2><span class="step-num sm">2</span> Invite your friend</h2>
+            <div class="invite">
+              <div class="qr-wrap">
+                <canvas id="offerQr" class="qr" width="240" height="240" role="img" aria-label="QR code of the invite link"></canvas>
+                <p class="hint">Your friend scans this with their phone camera.</p>
+              </div>
+              <div class="invite-side">
+                <p class="small">Or send them this link (WhatsApp, e-mail ...):</p>
+                <textarea id="offerCode" class="code-box" readonly rows="4" aria-label="Invite link"></textarea>
+                <div class="row">
+                  <button class="btn btn-primary btn-sm" id="btnCopyOffer" type="button">Copy invite link</button>
+                  <button class="btn btn-ghost btn-sm" id="btnShareOffer" type="button" hidden>Share...</button>
+                </div>
+                <p class="hint" id="offerMeta"></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="cstep" id="answerPasteBox" hidden>
+            <h2><span class="step-num sm">3</span> Get your friend's reply</h2>
+            <p class="small">When your friend opens the invite, their screen shows a <strong>reply</strong> (a QR and a code). Scan it or paste it here. It connects by itself.</p>
+            <textarea id="answerInput" class="code-box" rows="3" placeholder="Paste the reply code here (starts with VYBE3:)" aria-label="Reply code from your friend" spellcheck="false"></textarea>
+            <div class="row">
+              <button class="btn btn-ghost btn-sm" id="btnPasteAnswer" type="button">Paste</button>
+              <button class="btn btn-ghost btn-sm" id="btnScanAnswer" type="button" hidden>Scan QR</button>
+              <button class="btn btn-primary" id="btnConnect" type="button">Connect</button>
+            </div>
+            <p class="form-error" id="connectError" role="alert" hidden></p>
+          </div>
+        </div>
+
+        <!-- JOIN -->
+        <div id="panelJoin" class="panel connect-panel" role="tabpanel" aria-labelledby="tabJoin" hidden>
+          <div class="cstep">
+            <h2><span class="step-num sm">1</span> Open your friend's invite</h2>
+            <p class="small">Scan their QR with your phone camera, or tap their link. If you did, this step is already done for you. You can also paste the link or code here.</p>
+            <textarea id="offerInput" class="code-box" rows="3" placeholder="Paste the invite link or code here" aria-label="Invite link or code from your friend" spellcheck="false"></textarea>
+            <div class="row">
+              <button class="btn btn-ghost btn-sm" id="btnPasteOffer" type="button">Paste</button>
+              <button class="btn btn-ghost btn-sm" id="btnScanOffer" type="button" hidden>Scan QR</button>
+              <button class="btn btn-primary" id="btnGenerateAnswer" type="button">Join</button>
+            </div>
+            <p class="form-error" id="joinError" role="alert" hidden></p>
+          </div>
+
+          <div class="cstep" id="answerBox" hidden>
+            <h2><span class="step-num sm">2</span> Send your reply back</h2>
+            <div class="invite">
+              <div class="qr-wrap">
+                <canvas id="answerQr" class="qr" width="240" height="240" role="img" aria-label="QR code of the reply"></canvas>
+                <p class="hint">Your friend can scan this from their screen.</p>
+              </div>
+              <div class="invite-side">
+                <p class="small">Or send them this reply code:</p>
+                <textarea id="answerCode" class="code-box" readonly rows="4" aria-label="Reply code"></textarea>
+                <div class="row">
+                  <button class="btn btn-primary btn-sm" id="btnCopyAnswer" type="button">Copy reply code</button>
+                  <button class="btn btn-ghost btn-sm" id="btnShareAnswer" type="button" hidden>Share...</button>
+                </div>
+                <p class="hint"><strong>Now wait.</strong> Once your friend receives this reply, this page opens the room by itself.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row row-between">
+          <button class="btn btn-ghost btn-sm" id="btnStartOver" type="button">Start over</button>
+        </div>
+
+        <div class="notice notice-info">
+          <strong>Good to know:</strong> there is no server to pass your invite and reply along, so you carry them yourselves (scan or send). Each invite and reply works <strong>once</strong>; to try again, create a new invite. <span id="networkNotice"></span>Use two different devices, or one normal and one private window; two tabs of the same browser share storage and are blocked.
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ C. STUDY ROOM ============================ -->
+    <section id="view-room" class="view view-room" data-view="room" hidden>
+      <div class="container room-wrap">
+        <div class="room-grid" id="roomGrid">
+
+          <div class="chat-card">
+            <div class="chat-head">
+              <div class="chat-title">
+                <h1 id="roomName" class="room-name">Study Room</h1>
+                <p id="peerLine" class="peer-line">Not connected</p>
+              </div>
+              <div class="chat-head-actions">
+                <span class="pill" data-status-pill data-tone="neutral"><span class="pill-dot"></span><span class="pill-text">Not connected</span></span>
+                <button class="btn btn-ghost btn-sm panel-toggle" id="btnPanel" type="button" aria-expanded="false" aria-controls="infoPanel">Details</button>
+              </div>
+            </div>
+
+            <div id="reconnectBar" class="reconnect-bar" hidden>
+              <span data-status-detail>Not connected.</span>
+              <button class="btn btn-primary btn-sm" id="btnReconnect" type="button">Reconnect</button>
+            </div>
+
+            <div id="messages" class="messages" role="log" aria-live="polite" aria-label="Chat messages"></div>
+            <div id="emptyChat" class="chat-empty">
+              <img src="assets/logo.svg" width="48" height="48" alt="">
+              <p><strong>No messages yet.</strong></p>
+              <p>Say hello. Whatever you type goes straight to your peer's browser.</p>
+            </div>
+
+            <form id="chatForm" class="composer" autocomplete="off">
+              <label class="sr-only" for="messageInput">Message</label>
+              <textarea id="messageInput" rows="1" maxlength="1000" placeholder="Type a message. Enter to send, Shift+Enter for a new line."></textarea>
+              <button class="btn btn-primary" id="btnSend" type="submit">Send</button>
+            </form>
+            <div class="composer-meta">
+              <span id="inputHint" class="form-error" role="alert" hidden></span>
+              <span id="charCount" class="hint">0 / 1000</span>
+            </div>
+          </div>
+
+          <aside class="info-panel" id="infoPanel" aria-label="Connection information">
+            <h2>Connection info</h2>
+            <dl class="info-list">
+              <dt>Status</dt><dd id="infoStatus">-</dd>
+              <dt>Your role</dt><dd id="infoRole">-</dd>
+              <dt>You</dt><dd id="infoYou">-</dd>
+              <dt>Peer</dt><dd id="infoPeer">-</dd>
+              <dt>Route</dt><dd id="infoPath">-</dd>
+              <dt title="The browser's check that a route to your friend exists">Network check</dt><dd id="infoIce">-</dd>
+              <dt>Saved here</dt><dd id="infoStored">0 messages</dd>
+              <dt>History sync</dt><dd id="infoSync">-</dd>
+              <dt>Duplicates blocked</dt><dd id="infoDup">0</dd>
+              <dt>Invalid data rejected</dt><dd id="infoRejected">0</dd>
+            </dl>
+            <div class="panel-actions">
+              <button class="btn btn-ghost btn-sm" id="btnClear" type="button">Clear my chat</button>
+              <button class="btn btn-danger btn-sm" id="btnLeave" type="button">Leave room</button>
+            </div>
+            <p class="hint">Messages are saved in <em>this</em> browser's LocalStorage. No central database or message server is used. "Clear my chat" only deletes your copy; if you reconnect, your peer can send theirs back.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ E. ABOUT ============================ -->
+    <section id="view-about" class="view" data-view="about" hidden>
+      <div class="container narrow prose">
+        <p class="eyebrow">About</p>
+        <h1 class="h1-sm">About VYBE</h1>
+
+        <h2>What is VYBE?</h2>
+        <p>VYBE is a small study room for two students. You create a room, share two short codes, and your browsers talk to each other directly. It is a college project built with plain HTML, CSS and JavaScript, and it runs as a static website on GitHub Pages.</p>
+
+        <h2>What is peer-to-peer communication?</h2>
+        <p>In a normal chat app, every message goes to a company's server first and is then forwarded to the other person. In peer-to-peer communication the two devices (the peers) send data straight to each other. There is no server in the middle holding your messages.</p>
+
+        <h2>Why WebRTC?</h2>
+        <p>WebRTC is built into modern browsers. It lets two browsers set up a direct connection, and its <strong>RTCDataChannel</strong> sends text or data between them. We need no plug-in and no backend for the messages themselves.</p>
+
+        <h2>How does it work without a message server?</h2>
+        <p>Two browsers must first learn how to reach each other. Normally a <em>signalling server</em> passes that information along. VYBE replaces it with you: you share an <strong>invite</strong> (link or QR) and they send back a <strong>reply</strong> code. After that, the channel opens and messages never touch a server. A public <strong>STUN</strong> helper is used only to discover each device's public address. If a relay (<strong>TURN</strong>) server is set up, it is used only when a direct connection is impossible.</p>
+
+        <h2>What it cannot do</h2>
+        <ul>
+          <li>It does not work on every network. Strict firewalls need a relay (TURN) server, which only works if the developer has added one. See the README.</li>
+          <li>Only people who are online at the same time can chat. If your peer is offline, nobody can send you their history.</li>
+          <li>Your chat lives in your browser storage. Clearing site data deletes it.</li>
+          <li>Names are not verified. Anyone can type any name.</li>
+        </ul>
+
+        <h2>Credits</h2>
+        <p>Google's public STUN servers (<code>stun.l.google.com</code>) for address discovery. QR codes are drawn with a bundled copy of Kazuhiko Arase's MIT-licensed QR generator. Fonts: Bricolage Grotesque and DM Sans from Google Fonts.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span class="brand-word small">VYBE</span>
+      <span>Your Space. Your People. Your VYBE.</span>
+      <span>Built with WebRTC. No server stores your messages.</span>
+    </div>
+  </footer>
+
+  <div id="scanner" class="scanner" hidden role="dialog" aria-modal="true" aria-label="Scan a QR code">
+    <div class="scanner-box">
+      <video id="scannerVideo" playsinline muted></video>
+      <p id="scannerHint" class="hint">Point the camera at the QR code.</p>
+      <button class="btn btn-ghost btn-sm" id="btnScannerClose" type="button">Cancel</button>
+    </div>
+  </div>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <script src="js/ice-config.js"></script>
+  <script src="js/webrtc.js"></script>
+  <script src="js/chat.js"></script>
+  <script src="js/qrcode.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
