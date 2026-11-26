@@ -8,7 +8,7 @@
 | **Developer** | Karuna Chawla (individual project) |
 | **SAP ID** | 590027865 |
 | **GitHub** | [karunachawla000](https://github.com/karunachawla000) |
-| **Live app** | https://karunachawla000.github.io/VYBE/VYBE/ |
+| **Live app** | https://karunachawla000.github.io/P2P_App-VYBE/submissions/karuna-chawla-vybe/ |
 | **Course** | B.Tech CSE, UPES — Decentralised (P2P) Web Application assignment |
 
 ## What the app does
