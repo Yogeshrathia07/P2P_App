@@ -125,15 +125,16 @@ What the end-to-end test covers: GitHub Pages path and assets; invite and reply 
 |---|---|
 | Laptop on Wi-Fi + phone on **mobile data** (two different networks), live GitHub Pages URL | **Connected** on 26 Nov 2026. Chat worked in both directions. Route shown in the app: "Direct over the internet" (no TURN relay was used). |
 
+| Phone camera scanned the invite QR; the link opened VYBE in **Safari** on the phone; connection and chat worked | **Worked** on 26 Nov 2026. |
+
 This is **one** successful test on one pair of networks. It does not prove every network works.
 
 ### Not tested (do these yourself before claiming them)
 
 | Test | Result |
 |---|---|
-| Real phone camera scanning the invite QR (Android, iPhone) | ☐ not tested (decoded by software only) |
 | In-app *Scan QR* button, *Share…* button, Copy/Paste buttons on a phone | ☐ not tested |
-| Safari and Firefox (only Chromium was used) | ☐ not tested |
+| Firefox, desktop Safari and Android Chrome | ☐ not tested |
 | A real TURN provider (the relay test used a local test server) | ☐ not tested; no credentials are included |
 | Campus Wi-Fi, phone sleep / Wi-Fi drop on a real device | ☐ not tested |
 
