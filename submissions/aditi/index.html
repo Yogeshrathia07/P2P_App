@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>P2P Study Room</title>
+<style>
+:root{--bg:#f3f5f2;--panel:#fff;--ink:#1d2a26;--mute:#6b7a75;--line:#d5dcd8;--accent:#1f6f5c;--board:#fffef9}
+@media (prefers-color-scheme:dark){:root{--bg:#141a18;--panel:#1c2421;--ink:#e6ede9;--mute:#8fa19a;--line:#2e3a36;--accent:#4cc3a4;--board:#1a211e}}
+*{box-sizing:border-box}
+body{margin:0;height:100vh;display:grid;grid-template-rows:auto 1fr;background:var(--bg);color:var(--ink);font:15px/1.4 "Segoe UI",system-ui,sans-serif}
+header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:10px 14px;background:var(--panel);border-bottom:1px solid var(--line)}
+header h1{font-size:17px;margin:0 auto 0 0}
+#status{padding:3px 10px;border-radius:99px;border:1px solid var(--line);color:var(--mute);font-size:13px}
+#status.on{color:var(--accent);border-color:var(--accent)}
+button,input{font:inherit;color:inherit}
+button{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:5px 11px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+main{display:grid;grid-template-columns:1fr 320px;min-height:0}
+#boardwrap{display:flex;flex-direction:column;min-height:0;padding:10px;gap:8px}
+#tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#tools input[type=color]{width:34px;height:30px;padding:0;border:1px solid var(--line);border-radius:6px;background:none}
+canvas{flex:1;min-height:0;width:100%;background:var(--board);border:1px solid var(--line);border-radius:8px;touch-action:none;cursor:crosshair}
+aside{display:flex;flex-direction:column;min-height:0;border-left:1px solid var(--line);background:var(--panel)}
+#log{flex:1;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:6px}
+.m b{color:var(--accent)} .m small{color:var(--mute)} .m.me b{color:var(--ink)}
+#chatform{display:flex;gap:6px;padding:10px;border-top:1px solid var(--line)}
+#chatform input{flex:1;min-width:0;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg)}
+button.active{border-color:var(--accent);color:var(--accent);font-weight:600}
+#sizewrap{display:flex;gap:6px;align-items:center;color:var(--mute);font-size:13px}#sizewrap[hidden]{display:none}
+@media(max-width:760px){main{grid-template-columns:1fr;grid-template-rows:60% 40%}aside{border-left:0;border-top:1px solid var(--line)}}
+</style>
+</head>
+<body>
+<header>
+  <h1>P2P Study Room</h1>
+  <span id="status">connecting…</span>
+  <button id="copy">Copy invite link</button>
+</header>
+<main>
+  <section id="boardwrap">
+    <div id="tools">
+      <button class="active" data-tool="pen">Pen</button>
+      <button data-tool="eraser">Eraser</button>
+      <button data-tool="fill">Fill</button>
+      <input type="color" id="color" value="#1f6f5c" aria-label="Colour">
+      <label id="sizewrap"><span id="sizelabel">Pen size</span><input type="range" id="size" min="1" max="30" value="3"><span id="sizev">3</span></label>
+      <button id="undo" title="Ctrl+Z">Undo</button>
+      <button id="clear">Clear board</button>
+      <input id="name" maxlength="20" aria-label="Your name" style="width:120px;padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--panel)">
+    </div>
+    <canvas id="cv"></canvas>
+  </section>
+  <aside>
+    <div id="log" aria-live="polite"></div>
+    <form id="chatform"><input id="msg" maxlength="500" placeholder="Message the room" autocomplete="off"><button>Send</button></form>
+  </aside>
+</main>
+
+<script type="module">
+// Credit: Trystero (MIT) handles WebRTC signalling over public relays; data then flows peer-to-peer.
+let joinRoom, libError = false;
+for (const url of ['https://cdn.jsdelivr.net/npm/trystero@0.21.5/+esm', 'https://esm.run/trystero', 'https://cdn.skypack.dev/trystero']) {
+  try { ({ joinRoom } = await import(url)); break; } catch (err) { console.warn('Could not load', url, err); }
+}
+if (!joinRoom) {   // chat and board still work locally, so one failed CDN no longer breaks the whole app
+  libError = true;
+  joinRoom = () => ({ makeAction: () => [() => {}, () => {}], onPeerJoin() {}, onPeerLeave() {}, getPeers: () => ({}) });
+}
+
+const $ = id => document.getElementById(id);
+const me = localStorage.getItem('p2p-me') || crypto.randomUUID().slice(0, 8);
+localStorage.setItem('p2p-me', me);
+
+// ---- Room (long random id = hard to guess; optional password encrypts signalling) ----
+if (!location.hash) location.hash = Array.from(crypto.getRandomValues(new Uint8Array(12)), b => b.toString(36).padStart(2, '0')).join('').slice(0, 20);
+const roomId = location.hash.slice(1);
+const password = sessionStorage.getItem('pw-' + roomId) ?? (prompt('Room password (leave empty for none):') || '');
+sessionStorage.setItem('pw-' + roomId, password);
+const KEY = 'p2p-room-' + roomId;
+
+// ---- State: an append-only set of operations, keyed by unique id (dedupe) ----
+const ops = new Map();
+let clock = 0;                                // Lamport clock for ordering
+try { for (const o of JSON.parse(localStorage.getItem(KEY) || '[]')) { ops.set(o.id, o); clock = Math.max(clock, o.t); } } catch {}
+$('name').value = localStorage.getItem('p2p-name') || 'Guest-' + me.slice(0, 4);
+$('name').onchange = () => localStorage.setItem('p2p-name', $('name').value.trim().slice(0, 20));
+
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify([...ops.values()])); } catch {} };
+const sorted = () => [...ops.values()].sort((a, b) => a.t - b.t || (a.id < b.id ? -1 : 1));
+
+// ---- Validation (malicious input): shape, type, size ----
+const isNum = n => typeof n === 'number' && isFinite(n);
+function valid(o) {
+  if (!o || typeof o !== 'object' || typeof o.id !== 'string' || o.id.length > 40 || !Number.isInteger(o.t) || o.t < 0) return false;
+  if (typeof o.from !== 'string' || o.from.length > 20) return false;
+  if (o.type === 'chat') return typeof o.text === 'string' && o.text.length <= 500 && typeof o.name === 'string' && o.name.length <= 20;
+  if (o.type === 'clear') return true;
+  if (o.type === 'undo') return typeof o.target === 'string' && o.target.length <= 40;
+  if (o.type === 'fill') return /^#[0-9a-f]{6}$/i.test(o.c) && isNum(o.x) && isNum(o.y) && o.x >= 0 && o.x <= 1 && o.y >= 0 && o.y <= 1;
+  if (o.type === 'stroke') return /^#[0-9a-f]{6}$/i.test(o.c) && isNum(o.w) && o.w >= 1 && o.w <= 60 &&
+    (o.e === undefined || o.e === 1) && Array.isArray(o.p) && o.p.length <= 4000 && o.p.every(isNum);
+  return false;
+}
+const hits = new Map();                       // simple per-peer rate limit: 200 messages / 5 s
+const allowed = peer => { const now = Date.now(), a = (hits.get(peer) || []).filter(x => now - x < 5000); a.push(now); hits.set(peer, a); return a.length <= 200; };
+
+function merge(list) {
+  let changed = false;
+  for (const o of list.slice(0, 5000)) if (valid(o) && !ops.has(o.id)) { ops.set(o.id, o); clock = Math.max(clock, o.t); changed = true; }
+  if (changed) { save(); render(); }
+}
+
+// ---- Networking ----
+const room = joinRoom({
+  appId: 'upes-p2p-study-room',
+  password,
+  rtcConfig: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:global.stun.twilio.com:3478' }] }
+  // TODO (connection problem): add a free TURN service (e.g. Open Relay) here for restrictive Wi-Fi.
+}, roomId);
+const [sendOps, getOps] = room.makeAction('ops');
+const [sendLive, getLive] = room.makeAction('live');
+
+const status = () => { if (libError) { $('status').textContent = 'P2P library failed to load - check internet'; return; } const n = Object.keys(room.getPeers()).length; $('status').textContent = n ? `${n} peer${n > 1 ? 's' : ''} connected` : 'waiting for peers…'; $('status').classList.toggle('on', n > 0); };
+room.onPeerJoin(peer => { status(); sendOps([...ops.values()], peer); });   // late joiner gets full history
+room.onPeerLeave(status);
+getOps((list, peer) => { if (Array.isArray(list) && allowed(peer)) merge(list); });
+getLive((seg, peer) => {                                                     // live segment, drawn immediately
+  if (!allowed(peer) || !seg || !/^#[0-9a-f]{6}$/i.test(seg.c) || !seg.p?.every?.(isNum) || seg.p.length !== 4 || !isNum(seg.w)) return;
+  line(seg.p, seg.c, Math.min(Math.max(seg.w, 1), 60), seg.e === 1);
+});
+status();
+
+function emit(o) { o.id = crypto.randomUUID(); o.t = ++clock; o.from = me; ops.set(o.id, o); save(); sendOps([o]); render(); }
+
+// ---- Canvas ----
+const cv = $('cv'), ctx = cv.getContext('2d');
+function fit() { const r = cv.getBoundingClientRect(), d = devicePixelRatio || 1; cv.width = r.width * d; cv.height = r.height * d; render(); }
+addEventListener('resize', fit);
+function line([x1, y1, x2, y2], c, w, erase = false) {   // coordinates are 0..1 so any screen size works
+  ctx.globalCompositeOperation = erase ? 'destination-out' : 'source-over';
+  ctx.strokeStyle = c; ctx.lineWidth = w * (devicePixelRatio || 1); ctx.lineCap = ctx.lineJoin = 'round';
+  ctx.beginPath(); ctx.moveTo(x1 * cv.width, y1 * cv.height); ctx.lineTo(x2 * cv.width, y2 * cv.height); ctx.stroke();
+  ctx.globalCompositeOperation = 'source-over';
+}
+function floodFill(fx, fy, hex) {                  // paint-bucket: fills the connected area of similar colour
+  const W = cv.width, H = cv.height, img = ctx.getImageData(0, 0, W, H), d = img.data;
+  const sx = Math.floor(fx * W), sy = Math.floor(fy * H);
+  if (sx < 0 || sy < 0 || sx >= W || sy >= H) return;
+  const i0 = (sy * W + sx) * 4, t = [d[i0], d[i0 + 1], d[i0 + 2], d[i0 + 3]];
+  const n = parseInt(hex.slice(1), 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255;
+  if (t[3] === 255 && t[0] === r && t[1] === g && t[2] === b) return;
+  const match = i => Math.abs(d[i] - t[0]) + Math.abs(d[i + 1] - t[1]) + Math.abs(d[i + 2] - t[2]) + Math.abs(d[i + 3] - t[3]) < 80;
+  const seen = new Uint8Array(W * H), stack = [sy * W + sx];
+  while (stack.length) {
+    const p = stack.pop(); if (seen[p]) continue; seen[p] = 1;
+    const i = p * 4; if (!match(i)) continue;
+    d[i] = r; d[i + 1] = g; d[i + 2] = b; d[i + 3] = 255;
+    const x = p % W;
+    if (x > 0) stack.push(p - 1); if (x < W - 1) stack.push(p + 1);
+    if (p >= W) stack.push(p - W); if (p < W * (H - 1)) stack.push(p + W);
+  }
+  ctx.putImageData(img, 0, 0);
+}
+const undone = all => new Set(all.filter(o => o.type === 'undo').map(o => o.target));
+function render() {
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  const all = sorted();
+  const lastClear = all.map(o => o.type).lastIndexOf('clear');
+  const gone = undone(all);
+  all.slice(lastClear + 1).filter(o => !gone.has(o.id)).forEach(s => {
+    if (s.type === 'fill') return floodFill(s.x, s.y, s.c);
+    if (s.type !== 'stroke') return;
+    for (let i = 0; i + 3 < s.p.length; i += 2) line([s.p[i], s.p[i + 1], s.p[i + 2], s.p[i + 3]], s.c, s.w, s.e === 1);
+  });
+  const log = $('log'), stick = log.scrollTop + log.clientHeight >= log.scrollHeight - 30;
+  log.replaceChildren(...all.filter(o => o.type === 'chat').map(o => {
+    const d = document.createElement('div'); d.className = 'm' + (o.from === me ? ' me' : '');
+    const b = document.createElement('b'); b.textContent = o.name;           // textContent only: never innerHTML
+    d.append(b, ' ', document.createTextNode(o.text)); return d;
+  }));
+  if (stick) log.scrollTop = log.scrollHeight;
+}
+
+let pts = null;
+const pos = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]; };
+let tool = 'pen';
+const sizes = { pen: 3, eraser: 20 };
+function setTool(t) {
+  tool = t;
+  document.querySelectorAll('[data-tool]').forEach(x => x.classList.toggle('active', x.dataset.tool === t));
+  $('sizewrap').hidden = t === 'fill';
+  $('size').max = t === 'eraser' ? 60 : 30; $('size').value = sizes[t] ?? 3;
+  $('sizelabel').textContent = t === 'eraser' ? 'Eraser size' : 'Pen size'; $('sizev').textContent = $('size').value;
+  cv.style.cursor = t === 'fill' ? 'copy' : 'crosshair';
+}
+document.querySelectorAll('[data-tool]').forEach(b => b.onclick = () => setTool(b.dataset.tool));
+$('size').oninput = () => { sizes[tool] = +$('size').value; $('sizev').textContent = $('size').value; };
+
+const strokeOf = () => ({ c: tool === 'eraser' ? '#000000' : $('color').value, w: +$('size').value, e: tool === 'eraser' ? 1 : undefined });
+cv.onpointerdown = e => {
+  const p = pos(e);
+  if (tool === 'fill') return emit({ type: 'fill', x: +p[0].toFixed(4), y: +p[1].toFixed(4), c: $('color').value });
+  cv.setPointerCapture(e.pointerId); pts = [...p, ...p];
+};
+cv.onpointermove = e => {
+  if (!pts) return;
+  const [x, y] = pos(e), seg = [pts[pts.length - 2], pts[pts.length - 1], x, y], s = strokeOf();
+  line(seg, s.c, s.w, s.e === 1);
+  sendLive({ p: seg, ...s });
+  pts.push(x, y);
+  if (pts.length > 3900) { finish(); pts = [x, y, x, y]; }
+};
+const finish = () => { if (pts && pts.length >= 4) emit({ type: 'stroke', ...strokeOf(), p: pts.map(n => +n.toFixed(4)) }); pts = null; };
+cv.onpointerup = cv.onpointercancel = finish;
+
+function undo() {                                   // undoes YOUR latest stroke/fill; others' work is untouched
+  const all = sorted(), lc = all.map(o => o.type).lastIndexOf('clear'), gone = undone(all);
+  const mine = all.slice(lc + 1).filter(o => o.from === me && (o.type === 'stroke' || o.type === 'fill') && !gone.has(o.id)).pop();
+  if (mine) emit({ type: 'undo', target: mine.id });
+}
+$('undo').onclick = undo;
+addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && e.target.tagName !== 'INPUT') { e.preventDefault(); undo(); } });
+setTool('pen');
+
+$('clear').onclick = () => emit({ type: 'clear' });     // tombstone: offline peers learn about it when they sync
+$('chatform').onsubmit = e => {
+  e.preventDefault(); const text = $('msg').value.trim().slice(0, 500); if (!text) return;
+  emit({ type: 'chat', text, name: $('name').value.trim().slice(0, 20) || 'Guest' }); $('msg').value = '';
+};
+$('copy').onclick = async () => { try { await navigator.clipboard.writeText(location.href); $('copy').textContent = 'Copied'; } catch { prompt('Copy this link:', location.href); } setTimeout(() => $('copy').textContent = 'Copy invite link', 1500); };
+
+fit();
+</script>
+</body>
+</html>
