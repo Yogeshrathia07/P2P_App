@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="theme-color" content="#07111f">
+
+    <meta
+        name="description"
+        content="StudySync - Decentralised peer-to-peer study room for real-time chat, collaborative notes and file sharing."
+    >
+
+    <title>StudySync | P2P Study Room</title>
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Background Decoration -->
+    <div class="background">
+        <div class="glow glow-one"></div>
+        <div class="glow glow-two"></div>
+        <div class="grid-background"></div>
+    </div>
+
+
+    <!-- =========================================================
+         TOAST NOTIFICATION
+    ========================================================== -->
+
+    <div id="toast" class="toast">
+        <span id="toastIcon">✓</span>
+        <span id="toastText">Done</span>
+    </div>
+
+
+    <!-- =========================================================
+         JOIN / LANDING SCREEN
+    ========================================================== -->
+
+    <section id="joinScreen" class="join-screen">
+
+        <!-- Navigation -->
+        <nav class="landing-nav">
+
+            <div class="brand">
+
+                <div class="brand-logo">
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
+                        <path
+                            d="M2 8.5L12 3L22 8.5L12 14L2 8.5Z"
+                            fill="currentColor"
+                        />
+
+                        <path
+                            d="M6 11V16.5C8.8 19 15.2 19 18 16.5V11"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                        />
+
+                        <path
+                            d="M22 9V15"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                        />
+                    </svg>
+                </div>
+
+                <div>
+                    <h1>StudySync</h1>
+                    <span>Peer-to-Peer Study Room</span>
+                </div>
+
+            </div>
+
+
+            <div class="nav-security">
+                <span class="security-dot"></span>
+                Decentralised
+            </div>
+
+        </nav>
+
+
+        <!-- Landing Content -->
+        <div class="landing-container">
+
+            <!-- LEFT SIDE -->
+            <div class="landing-content">
+
+                <div class="landing-badge">
+                    <span class="badge-dot"></span>
+                    Powered by WebRTC
+                </div>
+
+
+                <h2>
+                    Study together.
+                    <span>Directly.</span>
+                </h2>
+
+
+                <p class="landing-description">
+                    A decentralised study space where students can chat,
+                    collaborate on notes and share files directly between
+                    their browsers.
+                </p>
+
+
+                <div class="landing-features">
+
+                    <div class="feature-item">
+
+                        <div class="feature-icon">↔</div>
+
+                        <div>
+                            <strong>Direct P2P</strong>
+                            <span>Browser-to-browser communication</span>
+                        </div>
+
+                    </div>
+
+
+                    <div class="feature-item">
+
+                        <div class="feature-icon">▣</div>
+
+                        <div>
+                            <strong>Shared Notes</strong>
+                            <span>Collaborate with your study group</span>
+                        </div>
+
+                    </div>
+
+
+                    <div class="feature-item">
+
+                        <div class="feature-icon">⇧</div>
+
+                        <div>
+                            <strong>File Sharing</strong>
+                            <span>Transfer files without cloud storage</span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="privacy-note">
+
+                    <div class="privacy-icon">⌁</div>
+
+                    <p>
+                        <strong>No application database.</strong>
+                        Messages, notes and files are exchanged between
+                        connected peers.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- RIGHT SIDE - JOIN CARD -->
+            <div class="join-card">
+
+                <div class="join-card-top">
+
+                    <div>
+
+                        <span class="section-label">
+                            PRIVATE STUDY SPACE
+                        </span>
+
+                        <h3>Join a Study Room</h3>
+
+                        <p>
+                            Enter the same room details on another device
+                            to start collaborating.
+                        </p>
+
+                    </div>
+
+
+                    <div class="p2p-symbol">
+                        P2P
+                    </div>
+
+                </div>
+
+
+                <form id="joinForm" class="join-form">
+
+                    <!-- Name -->
+                    <div class="input-group">
+
+                        <label for="userName">
+                            Display Name
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <span class="input-icon">●</span>
+
+                            <input
+                                id="userName"
+                                type="text"
+                                maxlength="30"
+                                autocomplete="name"
+                                placeholder="Enter your name"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Room -->
+                    <div class="input-group">
+
+                        <label for="roomId">
+                            Room ID
+                        </label>
+
+                        <div class="room-input-row">
+
+                            <div class="input-wrapper">
+
+                                <span class="input-icon">#</span>
+
+                                <input
+                                    id="roomId"
+                                    type="text"
+                                    maxlength="50"
+                                    autocomplete="off"
+                                    placeholder="study-a7f3k"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <button
+                                id="generateRoom"
+                                class="icon-button"
+                                type="button"
+                                title="Generate random room"
+                            >
+                                ↻
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Password -->
+                    <div class="input-group">
+
+                        <div class="label-row">
+
+                            <label for="roomPassword">
+                                Room Password
+                            </label>
+
+                            <span>Optional</span>
+
+                        </div>
+
+                        <div class="input-wrapper">
+
+                            <span class="input-icon">◆</span>
+
+                            <input
+                                id="roomPassword"
+                                type="password"
+                                maxlength="60"
+                                autocomplete="new-password"
+                                placeholder="Private room password"
+                            >
+
+                            <button
+                                id="togglePassword"
+                                class="password-toggle"
+                                type="button"
+                                title="Show password"
+                            >
+                                ◉
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <p id="joinError" class="form-error"></p>
+
+
+                    <button
+                        id="joinButton"
+                        class="primary-button"
+                        type="submit"
+                    >
+
+                        <span>Enter Study Room</span>
+
+                        <span class="button-arrow">→</span>
+
+                    </button>
+
+                </form>
+
+
+                <div class="join-card-footer">
+
+                    <span class="footer-dot"></span>
+
+                    <span>
+                        Secure WebRTC peer connection
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================================
+         MAIN STUDYSYNC APPLICATION
+    ========================================================== -->
+
+    <div id="appScreen" class="app-screen hidden">
+
+
+        <!-- ================= TOP HEADER ================= -->
+
+        <header class="app-header">
+
+            <div class="app-brand">
+
+                <div class="brand-logo small-logo">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
+
+                        <path
+                            d="M2 8.5L12 3L22 8.5L12 14L2 8.5Z"
+                            fill="currentColor"
+                        />
+
+                        <path
+                            d="M6 11V16.5C8.8 19 15.2 19 18 16.5V11"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                        />
+
+                    </svg>
+
+                </div>
+
+                <div>
+
+                    <h1>StudySync</h1>
+
+                    <span>Decentralised Study Room</span>
+
+                </div>
+
+            </div>
+
+
+            <div class="header-actions">
+
+                <div id="connectionBadge" class="connection-badge">
+
+                    <span
+                        id="connectionDot"
+                        class="connection-dot waiting"
+                    ></span>
+
+                    <span id="connectionText">
+                        Waiting for peer
+                    </span>
+
+                </div>
+
+
+                <div class="header-user">
+
+                    <div
+                        id="headerAvatar"
+                        class="user-avatar"
+                    >
+                        P
+                    </div>
+
+                    <div class="header-user-info">
+
+                        <strong id="headerName">
+                            User
+                        </strong>
+
+                        <span>You</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- ================= MAIN DASHBOARD ================= -->
+
+        <main class="dashboard">
+
+
+            <!-- =================================================
+                 LEFT SIDEBAR
+            ================================================== -->
+
+            <aside class="sidebar">
+
+
+                <div class="room-visual">
+
+                    <div class="room-visual-icon">
+                        👥
+                    </div>
+
+                    <div class="room-wave wave-a"></div>
+                    <div class="room-wave wave-b"></div>
+
+                </div>
+
+
+                <div class="room-info">
+
+                    <span class="section-label">
+                        STUDY ROOM
+                    </span>
+
+                    <h2 id="sidebarRoomName">
+                        Study Room
+                    </h2>
+
+
+                    <div class="room-code-box">
+
+                        <div>
+
+                            <span>Room ID</span>
+
+                            <strong id="roomCode">
+                                study-room
+                            </strong>
+
+                        </div>
+
+
+                        <button
+                            id="copyRoom"
+                            class="mini-icon-button"
+                            type="button"
+                            title="Copy Room ID"
+                        >
+                            ▣
+                        </button>
+
+                    </div>
+
+
+                    <button
+                        id="copyInvite"
+                        class="invite-button"
+                        type="button"
+                    >
+                        <span>🔗</span>
+                        Copy Invite Link
+                    </button>
+
+                </div>
+
+
+                <!-- Members -->
+                <div class="members-section">
+
+                    <div class="section-heading">
+
+                        <span>Online Members</span>
+
+                        <span
+                            id="memberCount"
+                            class="member-count"
+                        >
+                            1
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        id="membersList"
+                        class="members-list"
+                    >
+
+                        <!-- Current user inserted by JS -->
+
+                    </div>
+
+                </div>
+
+
+                <div class="sidebar-info">
+
+                    <span class="info-icon">i</span>
+
+                    <p>
+                        Data is exchanged directly with connected peers.
+                        StudySync does not store your room data on an
+                        application database.
+                    </p>
+
+                </div>
+
+
+                <button
+                    id="leaveRoom"
+                    class="leave-button"
+                    type="button"
+                >
+                    <span>↪</span>
+                    Leave Room
+                </button>
+
+            </aside>
+
+
+
+            <!-- =================================================
+                 CENTER WORKSPACE
+            ================================================== -->
+
+            <section class="workspace">
+
+
+                <!-- Workspace Tabs -->
+                <div class="workspace-tabs">
+
+                    <button
+                        class="workspace-tab active"
+                        data-tab="chat"
+                        type="button"
+                    >
+                        <span>◌</span>
+                        Chat
+                    </button>
+
+
+                    <button
+                        class="workspace-tab"
+                        data-tab="notes"
+                        type="button"
+                    >
+                        <span>▤</span>
+                        Notes
+                    </button>
+
+
+                    <button
+                        class="workspace-tab"
+                        data-tab="files"
+                        type="button"
+                    >
+                        <span>□</span>
+                        Files
+                    </button>
+
+                </div>
+
+
+
+                <!-- =============================================
+                     CHAT PANEL
+                ============================================== -->
+
+                <div
+                    id="chatPanel"
+                    class="tab-panel active-panel"
+                >
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <span class="section-label">
+                                LIVE P2P CHAT
+                            </span>
+
+                            <h2>Group Discussion</h2>
+
+                        </div>
+
+
+                        <div
+                            id="chatStatus"
+                            class="small-status"
+                        >
+                            Waiting for another device
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="messages"
+                        class="messages"
+                    >
+
+                        <div
+                            id="emptyChat"
+                            class="empty-state"
+                        >
+
+                            <div class="empty-icon">
+                                ◌
+                            </div>
+
+                            <h3>Your study room is ready</h3>
+
+                            <p>
+                                Invite another student to start a
+                                peer-to-peer conversation.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <form
+                        id="messageForm"
+                        class="message-composer"
+                    >
+
+                        <div class="composer-input">
+
+                            <input
+                                id="messageInput"
+                                type="text"
+                                maxlength="1000"
+                                autocomplete="off"
+                                placeholder="Write a message..."
+                            >
+
+                        </div>
+
+
+                        <button
+                            id="sendMessage"
+                            class="send-button"
+                            type="submit"
+                            title="Send message"
+                        >
+                            ➤
+                        </button>
+
+                    </form>
+
+                </div>
+
+
+
+                <!-- =============================================
+                     NOTES PANEL
+                ============================================== -->
+
+                <div
+                    id="notesPanel"
+                    class="tab-panel"
+                >
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <span class="section-label">
+                                COLLABORATIVE NOTES
+                            </span>
+
+                            <h2>Shared Notes</h2>
+
+                        </div>
+
+
+                        <div
+                            id="notesSyncStatus"
+                            class="small-status"
+                        >
+                            Saved locally
+                        </div>
+
+                    </div>
+
+
+                    <div class="notes-toolbar">
+
+                        <button
+                            type="button"
+                            class="note-tool"
+                            data-prefix="**"
+                            title="Bold"
+                        >
+                            <strong>B</strong>
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="note-tool"
+                            data-prefix="- "
+                            title="Bullet"
+                        >
+                            •
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="note-tool"
+                            data-prefix="# "
+                            title="Heading"
+                        >
+                            H
+                        </button>
+
+
+                        <div class="toolbar-divider"></div>
+
+
+                        <span>
+                            Changes sync with connected peers
+                        </span>
+
+                    </div>
+
+
+                    <textarea
+                        id="sharedNotes"
+                        class="notes-editor"
+                        maxlength="20000"
+                        placeholder="Start writing your shared study notes here..."
+                    ></textarea>
+
+
+                    <div class="notes-footer">
+
+                        <span id="notesCharacters">
+                            0 characters
+                        </span>
+
+                        <span id="notesSaved">
+                            Ready
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- =============================================
+                     FILES PANEL
+                ============================================== -->
+
+                <div
+                    id="filesPanel"
+                    class="tab-panel"
+                >
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <span class="section-label">
+                                DIRECT FILE TRANSFER
+                            </span>
+
+                            <h2>Shared Files</h2>
+
+                        </div>
+
+
+                        <span class="small-status">
+                            Browser to browser
+                        </span>
+
+                    </div>
+
+
+                    <label
+                        id="dropZone"
+                        class="file-drop-zone"
+                    >
+
+                        <input
+                            id="fileInput"
+                            type="file"
+                            multiple
+                        >
+
+                        <div class="upload-icon">
+                            ⇧
+                        </div>
+
+                        <h3>Drop files here</h3>
+
+                        <p>
+                            or click to select files from this device
+                        </p>
+
+                        <span>
+                            Files are transferred directly to connected peers
+                        </span>
+
+                    </label>
+
+
+                    <div class="files-heading">
+
+                        <div>
+
+                            <h3>Transfer Activity</h3>
+
+                            <span>
+                                Files shared during this session
+                            </span>
+
+                        </div>
+
+
+                        <button
+                            id="clearTransfers"
+                            class="text-button"
+                            type="button"
+                        >
+                            Clear
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        id="fileTransfers"
+                        class="file-transfers"
+                    >
+
+                        <div
+                            id="emptyFiles"
+                            class="empty-files"
+                        >
+
+                            <div>□</div>
+
+                            <strong>No files shared yet</strong>
+
+                            <span>
+                                Connect another peer and select a file.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 RIGHT PANEL
+            ================================================== -->
+
+            <aside class="right-panel">
+
+
+                <!-- Quick Notes Preview -->
+                <section class="right-card">
+
+                    <div class="right-card-header">
+
+                        <div>
+
+                            <span class="section-label">
+                                QUICK VIEW
+                            </span>
+
+                            <h3>Shared Notes</h3>
+
+                        </div>
+
+
+                        <button
+                            id="openNotes"
+                            class="expand-button"
+                            type="button"
+                            title="Open Notes"
+                        >
+                            ↗
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        id="notesPreview"
+                        class="notes-preview"
+                    >
+                        <span>
+                            Shared notes will appear here as your group
+                            starts writing.
+                        </span>
+                    </div>
+
+                </section>
+
+
+
+                <!-- Recent Files -->
+                <section class="right-card files-card">
+
+                    <div class="right-card-header">
+
+                        <div>
+
+                            <span class="section-label">
+                                P2P TRANSFERS
+                            </span>
+
+                            <h3>Recent Files</h3>
+
+                        </div>
+
+
+                        <button
+                            id="openFiles"
+                            class="expand-button"
+                            type="button"
+                            title="Open Files"
+                        >
+                            ↗
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        id="recentFiles"
+                        class="recent-files"
+                    >
+
+                        <div
+                            id="noRecentFiles"
+                            class="no-recent-files"
+                        >
+                            No files received yet.
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- Connection Information -->
+                <section class="right-card connection-card">
+
+                    <div class="connection-card-icon">
+                        ↔
+                    </div>
+
+                    <div>
+
+                        <strong>Peer Connection</strong>
+
+                        <span id="peerConnectionInfo">
+                            Waiting for another device to join this room.
+                        </span>
+
+                    </div>
+
+                </section>
+
+            </aside>
+
+        </main>
+
+
+        <!-- Bottom Status Bar -->
+        <footer class="app-footer">
+
+            <div>
+
+                <span class="footer-live-dot"></span>
+
+                <span id="footerStatus">
+                    StudySync room active
+                </span>
+
+            </div>
+
+
+            <div>
+                WebRTC • Decentralised • No application database
+            </div>
+
+        </footer>
+
+    </div>
+
+
+
+    <!-- =========================================================
+         JAVASCRIPT
+    ========================================================== -->
+
+    <script
+        type="module"
+        src="app.js"
+    ></script>
+
+</body>
+</html>
