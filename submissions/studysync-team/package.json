@@ -1,0 +1,9 @@
+{
+  "name": "studysync-p2p-study-room",
+  "version": "1.0.0",
+  "private": true,
+  "description": "StudySync - A decentralised peer-to-peer study room using WebRTC and Trystero.",
+  "scripts": {
+    "dev": "npx serve ."
+  }
+}
