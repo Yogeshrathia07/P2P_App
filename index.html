@@ -1,72 +1,61 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>P2P Class Chat</title>
-  <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="style.css">
-  <script src="app.js" defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P2P Doubt Board</title>
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<!-- Join screen -->
-<div id="joinView">
-  <div class="topbar">
-    <span class="brand">P2P Class Chat</span>
-  </div>
+<header>
+    <h2>P2P Doubt Board</h2>
+    <span id="status">Not Connected</span>
+</header>
 
-  <main class="join">
-    <h1>Join a room</h1>
-    <p class="lead">Anyone who enters the same room name can chat with you. Messages go straight between browsers and aren't saved anywhere.</p>
+<main>
+    <section class="intro">
+        <h1>Share Doubts.<br><span>Learn Together.</span></h1>
+        <p>Ask questions and share answers directly with another student.</p>
+    </section>
 
-    <form id="joinForm" novalidate>
-      <label for="nameInput">Your name</label>
-      <input id="nameInput" maxlength="30" autocomplete="nickname" placeholder="e.g. Yogesh">
+    <section class="connection">
+        <h2>Connect Students</h2>
 
-      <label for="roomInput">Room name</label>
-      <input id="roomInput" maxlength="60" autocomplete="off" spellcheck="false" placeholder="e.g. frontend">
+        <input id="name" placeholder="Enter your name">
 
-      <label for="passInput">Password <span class="optional">(optional)</span></label>
-      <input id="passInput" type="password" autocomplete="off">
-      <p class="hint">If you set one, everyone in the room has to type the same password.</p>
+        <button id="create">Create Connection</button>
 
-      <button type="submit" class="primary" id="joinBtn">Join room</button>
-      <p class="error" id="joinError" role="alert"></p>
-    </form>
+        <textarea id="remote" placeholder="Paste partner's connection code"></textarea>
 
-    <p class="footnote">Trying it on your own? Open this page in two tabs and join the same room.</p>
-  </main>
-</div>
+        <button id="accept">Accept Connection</button>
 
-<!-- Chat screen -->
-<div id="chatView" hidden>
-  <aside class="sidebar">
-    <div class="brand-bar">
-      <span class="brand">P2P Class Chat</span>
-    </div>
-    <h2>Online <span id="peopleCount">1</span></h2>
-    <ul id="peopleList"></ul>
-  </aside>
+        <textarea id="local" placeholder="Your connection code" readonly></textarea>
 
-  <section class="main">
-    <header>
-      <div class="room-info">
-        <strong id="roomTitle"></strong>
-        <span id="status"></span>
-      </div>
-      <button type="button" id="copyLinkBtn">Invite link</button>
-      <button type="button" id="leaveBtn">Leave</button>
-    </header>
+        <button id="copy">Copy Code</button>
+    </section>
 
-    <div id="messages" role="log" aria-live="polite"></div>
+    <section class="board">
+        <h2>Discussion Board</h2>
 
-    <form id="sendForm" class="composer">
-      <input id="msgInput" maxlength="2000" autocomplete="off" placeholder="Write a message" aria-label="Message">
-      <button type="submit" class="primary">Send</button>
-    </form>
-  </section>
-</div>
+        <input id="doubt" placeholder="Write your doubt or answer">
+
+        <button id="post">Post Message</button>
+
+        <div id="posts"></div>
+
+        <button id="clear">Clear My Local Board</button>
+    </section>
+
+</main>
+
+<footer>
+    P2P Doubt Board | HTML | CSS | JavaScript | WebRTC
+</footer>
+
+<script src="app.js"></script>
 
 </body>
 </html>
