@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SyncRoom | Listen Together</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <a href="index.html" class="logo">
+            <span class="logo-icon">♫</span>
+            SyncRoom
+        </a>
+        <span class="nav-tag">PEER TO PEER MUSIC</span>
+    </header>
+
+    <main class="hero">
+        <div class="hero-content">
+
+            <div class="status-pill">
+                <span class="status-dot"></span>
+                MUSIC SOUNDS BETTER TOGETHER
+            </div>
+
+            <h1>
+                Your music.<br>
+                <span>Your people.</span><br>
+                One room.
+            </h1>
+
+            <p class="description">
+                Create a room, invite your friends, and experience
+                music together through a direct peer-to-peer connection.
+            </p>
+
+            <div class="music-decoration">
+                <span>♫</span>
+                <span>♪</span>
+                <span>♫</span>
+                <span>♬</span>
+                <span>♪</span>
+                <span>♫</span>
+                <span>♬</span>
+            </div>
+
+            <section class="room-card">
+
+                <label for="username">YOUR DISPLAY NAME</label>
+                <input
+                    type="text"
+                    id="username"
+                    placeholder="Enter your name"
+                    maxlength="20"
+                >
+
+                <button id="createRoom" class="primary-btn">
+                    <span>＋</span> Create a Room
+                </button>
+
+                <div class="separator">
+                    <span></span>
+                    OR JOIN AN EXISTING ROOM
+                    <span></span>
+                </div>
+
+                <label for="roomCode">ROOM CODE</label>
+                <input
+                    type="text"
+                    id="roomCode"
+                    placeholder="Enter 6-character code"
+                    maxlength="6"
+                >
+
+                <button id="joinRoom" class="secondary-btn">
+                    Join Room →
+                </button>
+
+                <p id="message" class="message"></p>
+
+            </section>
+
+            <p class="privacy-note">
+                <span>🔒</span>
+                Designed for direct peer-to-peer communication.
+            </p>
+
+        </div>
+    </main>
+
+    <footer>
+        <p>SYNCROOM © 2026 · LISTEN TOGETHER, ANYWHERE.</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

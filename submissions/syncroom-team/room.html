@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SyncRoom | Music Room</title>
+    <link rel="stylesheet" href="./css/room.css">
+</head>
+<body>
+
+<header class="topbar">
+    <a href="./index.html" class="logo">♫ SyncRoom</a>
+    <div class="connection" id="connectionStatus" aria-live="polite">
+        <span class="dot"></span>
+        <span id="connectionText">Initialising…</span>
+    </div>
+    <button class="leave-btn" id="leaveRoom">Leave Room</button>
+</header>
+
+<main class="layout">
+
+    <section class="player-section">
+
+        <div class="room-heading">
+            <div>
+                <p class="eyebrow">YOUR LISTENING SPACE</p>
+                <h1>Music Room</h1>
+                <p class="subtle" id="welcomeText"></p>
+            </div>
+            <div class="room-code">
+                <small>ROOM CODE</small>
+                <strong id="displayRoomCode">------</strong>
+                <button class="copy-btn" id="copyRoomCode" type="button">Copy invite</button>
+            </div>
+        </div>
+
+        <div class="album-art">
+            <div class="album-symbol">♫</div>
+            <div class="album-caption">SYNCROOM SESSIONS</div>
+        </div>
+
+        <div class="song-info">
+            <h2 id="songTitle">No song selected</h2>
+            <p id="songArtist">Upload an audio file to get started</p>
+        </div>
+
+        <div class="mode-picker">
+            <label for="playbackMode">LISTENING MODE</label>
+            <select id="playbackMode">
+                <option value="sync">Synchronized local playback (everyone has the same file)</option>
+                <option value="stream">Host streams audio live to everyone</option>
+            </select>
+            <p class="hint" id="playerNote"></p>
+        </div>
+
+        <input type="file" id="audioUpload" accept="audio/*" hidden>
+        <button class="upload-btn" id="uploadButton" type="button">＋ Upload Music</button>
+
+        <audio id="audioPlayer" controls></audio>
+
+        <div class="remote-audio-wrap" id="remoteAudioWrap" hidden>
+            <strong>Incoming audio from the host</strong>
+            <div id="remoteAudioList"></div>
+        </div>
+
+        <button class="enable-btn" id="enableAudio" type="button" hidden>▶ Enable audio</button>
+        <p class="status-line" id="mediaStatus"></p>
+
+    </section>
+
+    <aside class="sidebar">
+
+        <section class="panel">
+            <h3>Room Members <span class="count" id="memberCount">1</span></h3>
+            <div id="membersList"></div>
+        </section>
+
+        <section class="panel chat-panel">
+            <h3>Room Chat</h3>
+            <div class="chat-messages" id="chatMessages"></div>
+            <form id="chatForm" class="chat-form">
+                <input type="text" id="chatInput" placeholder="Write a message..." autocomplete="off" maxlength="500" aria-label="Message">
+                <button type="submit" aria-label="Send">↑</button>
+            </form>
+            <small class="chat-note">Sent directly to peers over WebRTC · history kept on this device</small>
+            <details class="diag">
+                <summary>Connection diagnostics</summary>
+                <ul id="diagLog"></ul>
+            </details>
+        </section>
+
+    </aside>
+
+</main>
+
+<!-- Shown only when someone opens a shared room link without having chosen a name -->
+<div class="name-overlay" id="namePrompt" hidden>
+    <form class="name-card" id="nameForm">
+        <h2>Join this room</h2>
+        <p class="subtle">Pick a display name. It is just a label, not a verified identity.</p>
+        <input id="nameInput" maxlength="20" placeholder="Your name" autocomplete="nickname" required>
+        <button class="upload-btn" type="submit">Join</button>
+    </form>
+</div>
+
+<!-- type="module" is required because room.js uses `import` -->
+<script type="module" src="./js/room.js"></script>
+<script>
+// Watchdog: if room.js never ran (old cached file, 404, or script error) say so on the page.
+setTimeout(function () {
+  if (window.__syncroomBuild) return;
+  var t = document.getElementById("connectionText");
+  t.textContent = "room.js did not start. Hard-refresh (Ctrl+Shift+R) and check js/room.js is the new file.";
+  document.getElementById("connectionStatus").classList.add("error");
+}, 4000);
+window.addEventListener("error", function (e) {
+  var t = document.getElementById("connectionText");
+  if (t && !window.__syncroomBuild) t.textContent = "Script error: " + e.message;
+});
+</script>
+</body>
+</html>
